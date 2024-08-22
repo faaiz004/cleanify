@@ -1,7 +1,8 @@
 import psycopg2
 from os import environ as env
 from backend.repositories.user import UserRepository
-
+from backend.repositories.container import ContainerRepository
+from backend.repositories.vehicle import VehicleRepository
 class UnitOfWork:
     
     def __init__(self):
@@ -22,6 +23,8 @@ class UnitOfWork:
         self.dict_cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         self.users = UserRepository(self.connection)
+        self.containers = ContainerRepository(self.connection)
+        self.vehicles = VehicleRepository(self.connection)
 
     def commit_close(self):
         self.connection.commit()

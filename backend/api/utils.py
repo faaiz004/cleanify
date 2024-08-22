@@ -24,9 +24,15 @@ def provide_req_and_uow_and_handle_exceptions(
         @wraps(func)
         def wrapper(*args, **kwargs):
             uow = UnitOfWork()
-            req = request.get_json(force=True)
+
             try:
-                r = func(req, uow, *args, **kwargs)
+                req = request.get_json(force=True)
+            except:
+                # get request
+                req = {}
+
+            try:
+                r = func(uow, req, *args, **kwargs)
             except UowCloseRaiseCustom as e:
                 uow.close()
                 raise CustomException(e.name, e.message)
@@ -46,14 +52,26 @@ def provide_req_and_uow_and_handle_exceptions(
         return wrapper
     return decorator
 
-def validate_payload(params: list):
+def validate_post_payload(params: list):
     def decorator(func):
         @wraps(func)
-        def wrapper(req, *args, **kwargs):
+        def wrapper(uow, req, *args, **kwargs):
             for each in params:
                 if each not in req.keys():
                     raise CustomException("MissingParameters",f"Parameter missing: {each}")
             
-            return func(req, *args, **kwargs)
+            return func(uow, req, *args, **kwargs)
+        return wrapper
+    return decorator
+
+def validate_get_payload(params: list):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for each in params:
+                if each not in request.args:
+                    raise CustomException("MissingParameters",f"Parameter missing: {each}")
+            
+            return func(*args, **kwargs)
         return wrapper
     return decorator

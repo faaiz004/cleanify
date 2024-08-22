@@ -23,7 +23,7 @@ class UserRepository:
     def get(self, id: str) -> User:
         self.cursor.execute(f"SELECT * FROM users WHERE id = '{id}'")
         user = self.cursor.fetchone()
-        return User(**user)
+        return User(**user) if user else None
 
     def get_by_email(self, email:str) -> User:
         self.cursor.execute(f"SELECT * FROM users WHERE email = '{email}'")
