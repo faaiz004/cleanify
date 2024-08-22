@@ -1,8 +1,10 @@
 import { SxProps, Theme } from "@mui/material";
 
 export const root: SxProps<Theme> = {
-    minHeight: "100vh",
-    minWidth: "100vw",
+    height: "89vh",
+    display: "flex",
+    flexDirection: "row",
+    gap: "20px",
 }
 
 export const dividerStyle: SxProps<Theme> = {

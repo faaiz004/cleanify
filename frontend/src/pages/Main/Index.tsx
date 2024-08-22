@@ -25,9 +25,11 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SupportIcon from '@mui/icons-material/Support';
 import LogoutIcon from '@mui/icons-material/Logout';
-import CleanifyBlue from '../../assets/CleanifyBlue.svg';
+import CleanifyLogo from '../../assets/CleanifyLogo.jpeg';
 import { Img } from 'react-image';
-import { dividerStyle } from './Styles';
+import { dividerStyle, root } from './Styles';
+import Stats from '../../layout/Main/Stats/Index';
+import Map from '../../layout/Main/Map/Index';
 
 
 const drawerWidth = 300;
@@ -139,9 +141,9 @@ export default function MainBody() {
 
         {/* Add Cleanify Logo */}
         <Img
-          src={CleanifyBlue}
+          src={CleanifyLogo}
           alt="Cleanify Logo"
-          style={{ width: '100%', height: 'auto', padding: '10px' }}
+          style={{ width: '80%', height: 'auto', padding: '10px', marginLeft: 'auto', marginRight: 'auto' }}
         />
 
         <Box sx = {dividerStyle } />
@@ -182,9 +184,16 @@ export default function MainBody() {
           ))}
         </List>
       </Drawer>
-      <Main open={open}>
+      <Main open={open} sx ={{
+        backgroundColor: '#f5f5f5',
+      }}>
         <DrawerHeader />
         {/* Add your main content here */}
+        <Box sx = {root}>
+          <Stats/>
+          <Map/>
+        </Box>
+
       </Main>
     </Box>
   );
