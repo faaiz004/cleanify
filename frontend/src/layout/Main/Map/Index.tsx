@@ -3,8 +3,6 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import mapIcon from '../../../assets/map.png';
-import { root } from './Styles';
-import { Box } from '@mui/material';
 
 interface MarkerData {
   geocode: LatLngExpression;
@@ -52,7 +50,7 @@ const ScrollToLocationButton: React.FC = () => {
 
 const Map: React.FC = () => {
   return (
-      <MapContainer center={[48.8566, 2.3522]} zoom={13} style={{ height: '87vh', width: '100%' }}>
+      <MapContainer center={[48.8566, 2.3522]} zoom={13} style={{ height: '87vh', width: '100%', zIndex: 0 }}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

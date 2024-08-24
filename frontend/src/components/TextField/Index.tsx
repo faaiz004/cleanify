@@ -15,7 +15,7 @@ export default function TextField({
       <input
         type="email"
         placeholder="Enter your email"
-        className={`text-field ${error.trim().length > 0 ? 'error' : ''}`}
+        className={`text-field ${error?.trim()?.length > 0 ? 'error' : ''}`}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

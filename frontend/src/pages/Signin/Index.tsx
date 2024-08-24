@@ -15,15 +15,26 @@ import PasswordInput from "../../components/PasswordField/Index";
 import Cleanify from "../../assets/Cleanify.svg";
 import { Img } from "react-image";
 import { Link } from "react-router-dom";
+import { login } from "../../services/Auth/Index";
+import { setUser } from "../../redux/userSlice";
+import { useDispatch } from "react-redux";
+
+interface ErrorType{
+  email:string
+  password:string
+}
+
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState({
+  const dispatch = useDispatch()
+  const [loading,setLoading] = useState<boolean>(false)
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<ErrorType>({
     email: "",
     password: "",
   });
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     const emailRegex = /^\w+@[a-zA-Z_\.]+\.[a-zA-Z]{2,4}$/;
 
     // Validate email
@@ -47,15 +58,35 @@ export default function SignIn() {
     
     setError((prevError) => ({ ...prevError, password: "" }));
 
-
-
-    // Perform actual registration logic here (e.g., API call)
-    console.log("Registration successful! (placeholder)"); // Simulate success
-
     // Clear form fields (optional)
     setEmail("");
     setPassword("");
+
+    // Perform actual registration logic here (e.g., API call)
+    try {
+      setLoading(true)
+      const response : any = await login(email,password)
+      dispatch(setUser({
+        name: response?.name || '',
+        email: response?.email || '',
+        access_token: response?.data || '',
+        type: response?.type || '',
+    }));
+    setLoading(false)
+    } catch (error: any) {
+      console.log('error',error, typeof(error))
+      console.log('checking: ',error?.Error)
+      setLoading(false)
+      setError((prevError) => ({
+        ...prevError,
+        password: error?.response?.data?.message || error?.Error || 'Something went wrong, please try again'
+      }))
+      return;
+    }
+    setLoading(false);
+    setError((prevError) => ({ ...prevError, password: "" }));
   };
+  
 
   return (
     <Box sx={root}>
@@ -93,10 +124,10 @@ export default function SignIn() {
             placeholder="Enter your password"
             setPassword={setPassword}
           />
-          <Button sx={buttonStyle} onClick={handleSignIn}>
+          <Button sx={buttonStyle} onClick={handleSignIn} disabled = {loading}>
             Sign In
           </Button>
-          <Typography
+          <Box
             sx={{
               color: "black",
               fontSize: "14px",
@@ -117,7 +148,7 @@ export default function SignIn() {
                 Register
               </Link>
             </Typography>
-          </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

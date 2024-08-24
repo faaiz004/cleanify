@@ -55,6 +55,7 @@ export const Container: SxProps<Theme> = {
     alignItems: 'center',
     gap: '10px',
     padding: '20px',
+    position: 'relative'
 }
 
 
@@ -72,3 +73,18 @@ export const grahContainer: SxProps<Theme> = {
     height: '250px',
 }
 
+export const deleteContainer: SxProps<Theme> = {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    zIndex: 10000,
+    backgroundColor: 'lightgray',
+    borderRadius: '50%',
+    width: '20px',
+    height: '20px',
+    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+}

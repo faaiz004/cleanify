@@ -19,7 +19,7 @@ export default function PasswordInput({
     const [showPassword, setShowPassword] = useState(false);
   return (
     <Box sx={InputErrorBox}>
-      <Box sx={PasswordField(error.trim().length > 0)}>
+      <Box sx={PasswordField(error?.trim()?.length > 0)}>
         <input
           placeholder={placeholder || 'Enter your password'}
           className="Password"

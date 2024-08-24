@@ -8,6 +8,8 @@ import { lazy, Suspense } from "react";
 
 // importing the layouts
 import Navbar from "../layout/Navbar/Index";
+import ProtectedRoute from "./Private/Index";
+import PublicRoute from "./Public/Index";
 
 // Lazy load the components
 const Home = lazy(() => import("../pages/Home/Index"));
@@ -18,10 +20,12 @@ const MainBody = lazy(() => import("../pages/Main/Index"));
 
 const NavbarLayout: React.FC = () => {
   return (
-    <>
-      <Navbar />
-      <Outlet />
-    </>
+    <PublicRoute>
+      <>
+        <Navbar />
+        <Outlet />
+      </>
+    </PublicRoute>
   );
 };
 
@@ -66,9 +70,12 @@ export default function RouterComponent() {
         <Route
           path="/main"
           element={
+            <ProtectedRoute>
             <Suspense fallback={<div>...Loading</div>}>
               <MainBody />
             </Suspense>
+            </ProtectedRoute>
+
           }
         />
 

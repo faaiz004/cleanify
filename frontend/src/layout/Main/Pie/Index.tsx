@@ -1,14 +1,24 @@
 import { Doughnut } from "react-chartjs-2";
 import { Chart as Chartjs, ArcElement, Title, Tooltip, Legend } from "chart.js";
-import { Container, grahContainer, headingContainer, headingStyle } from "../Stats/Styles";
+import {
+  Container,
+  grahContainer,
+  headingContainer,
+  headingStyle,
+} from "../Stats/Styles";
 import { Box, Typography } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
+
 Chartjs.register(ArcElement, Title, Tooltip, Legend);
 
 export default function DoughnutChart({
   text,
+  editMode,
+  onDelete,
 }: {
-
   text: string;
+  editMode: boolean;
+  onDelete?: any
 }) {
   const options = {
     maintainAspectRatio: false,
@@ -41,9 +51,13 @@ export default function DoughnutChart({
   };
   return (
     <Box sx={Container}>
-        <Box sx = {headingContainer}>
-            <Typography sx={headingStyle}>{text}</Typography>
-        </Box>
+      <Box sx={headingContainer}>
+        <Typography sx={headingStyle}>{text}</Typography>
+        {editMode && (
+        
+        <DeleteIcon onClick = {onDelete} sx = {{cursor: 'pointer', color: 'gray'}}/>
+      )}
+      </Box>
       <Box sx={grahContainer}>
         <Doughnut data={data} options={options} />
       </Box>
