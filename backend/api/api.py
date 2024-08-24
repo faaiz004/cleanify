@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 
+from flask_cors import CORS
 from uuid import uuid4
 from backend.uow import UnitOfWork
 from backend.api.utils import *
@@ -9,6 +10,7 @@ from backend.models.vehicle import *
 from backend.exception_types import *
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=['GET'])
 def base():
