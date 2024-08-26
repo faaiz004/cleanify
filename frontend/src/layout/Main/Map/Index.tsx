@@ -4,6 +4,7 @@ import { Icon, PointExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ContainerType } from "../../../pages/Main/constants";
 import { LocationObj } from "../../../pages/Main/Index";
+import MarkerClusterGroup from 'react-leaflet-cluster'
 
 // Function to create a custom icon with a specific color
 const createCustomIcon = (color: string, size: PointExpression = [38, 38]) => {
@@ -105,9 +106,6 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
     }));
   }, [containers]);
 
-
-  
-
   return (
     <MapContainer
       center={[31.5497, 74.3436]}
@@ -121,11 +119,14 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {markers.map((marker, index) => (
-        <Marker key={index} position={marker.geocode} icon={marker.icon}>
-          <Popup>{marker.popUp}</Popup>
-        </Marker>
-      ))}
+      <MarkerClusterGroup>
+        {markers.map((marker, index) => (
+          <Marker key={index} position={marker.geocode} icon={marker.icon}>
+            <Popup>{marker.popUp}</Popup>
+          </Marker>
+        ))}
+      </MarkerClusterGroup>
+
       {/* Toggle button here */}
       <ToggleEditButton showEdits={showStats} toggleEdit={toggleStats} />
       <FlyToAPos currentLocation={currentLocation} />
