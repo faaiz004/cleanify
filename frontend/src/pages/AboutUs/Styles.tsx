@@ -76,7 +76,7 @@ export const textFiledStyling: SxProps<Theme> = {
 }
 
 export const footerContainer = {
-    backgroundColor: '#2D8083',
+    backgroundColor: 'primary.light',
     width: '100%',
     padding: '20px',
     textAlign: 'center',

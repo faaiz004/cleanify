@@ -17,7 +17,7 @@
 .text-field:focus,
 .text-field:hover,
 .text-field:active {
-    border-color: #048748;
+    border-color: #48819A;
 }
 
 .text-field.error {

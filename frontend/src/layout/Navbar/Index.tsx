@@ -12,9 +12,9 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
-import Cleanify from "../../assets/Cleanify.svg";
+import Cleanify from "../../assets/cleanifyLogo.svg"
 import { Img } from "react-image";
-import { ButtonTextStyle, RegisterButtonStyle, SignInButtonStyle } from "./Styles";
+import { ButtonTextStyle, SignInButtonStyle } from "./Styles";
 import { useNavigate } from "react-router-dom";
 interface Props {
   /**
@@ -40,9 +40,6 @@ export default function DrawerAppBar(props: Props) {
     switch (item) {
       case "About Us":
         navigate('/aboutus');
-        break;
-      case "Register":
-        navigate('/register');
         break;
       case "Sign in":
         navigate('/signin');
@@ -130,7 +127,6 @@ export default function DrawerAppBar(props: Props) {
             md: '20px',
           }, alignItems: 'center' }}>
                 <Button sx = {ButtonTextStyle} onClick={() => navigate('/aboutus')}>About Us</Button>
-                <Button sx={RegisterButtonStyle} onClick={() => navigate('/register')}>Register</Button>
                 <Button sx={SignInButtonStyle} onClick={() => navigate('/signin')}>Sign in</Button>
           </Box>
         </Toolbar>

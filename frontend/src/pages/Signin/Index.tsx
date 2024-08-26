@@ -12,7 +12,7 @@ import {
 import { Button, Typography } from "@mui/material";
 import TextField from "../../components/TextField/Index";
 import PasswordInput from "../../components/PasswordField/Index";
-import Cleanify from "../../assets/Cleanify.svg";
+import Cleanify from "../../assets/cleanifyLogo.svg";
 import { Img } from "react-image";
 import { Link } from "react-router-dom";
 import { login } from "../../services/Auth/Index";
@@ -142,10 +142,10 @@ export default function SignIn() {
               style={{ cursor: "pointer", display: "inline" }}
             >
               <Link
-                to="/register"
+                to = '/signin'
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                Register
+                register using our app!
               </Link>
             </Typography>
           </Box>

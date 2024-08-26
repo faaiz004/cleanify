@@ -28,9 +28,19 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import CleanifyLogo from '../../assets/CleanifyLogo.jpeg';
 import { Img } from 'react-image';
 import { dividerStyle, root } from './Styles';
-import Stats from '../../layout/Main/Stats/Index';
 import Map from '../../layout/Main/Map/Index';
+import StatsMiddleware from '../../layout/Main/StatsMiddleWare/Index';
+import { clearUser } from '../../redux/userSlice';
+import { useDispatch } from 'react-redux';
+import { containers as initialContainers } from './constants';
+import { ContainerType } from './constants';
+import ControlledOpenSelect from '../../components/Select/Index';
 
+
+export interface LocationObj {
+  City: string;
+  Position: [number,number];
+}
 
 const drawerWidth = 300;
 
@@ -84,6 +94,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function MainBody() {
   const theme = useTheme();
+
+  const [showStats, setShowStats] = React.useState<boolean>(true);
+
+  const toggleStats = () => {
+    setShowStats((prevShowStats:boolean) => !prevShowStats);
+  };
+
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerOpen = () => {
@@ -93,6 +110,42 @@ export default function MainBody() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const dispatch = useDispatch();
+
+  const handleClick = (text:string) => {
+    if(text == "Logout"){
+      dispatch(clearUser());
+    } 
+  }
+  // State Management for the current location
+  const [allLocation, setAllLocation] = React.useState<LocationObj[]>([
+    {
+      City: 'Lahore',
+      Position: [31.5497, 74.3436], // Coordinates for Lahore
+    },
+    {
+      City: 'Islamabad',
+      Position: [33.6844, 73.0479], // Coordinates for Islamabad
+    },
+  ]);
+
+  const [currentLocation, setCurrentLocation] = React.useState<LocationObj>({
+    City: 'Lahore',
+    Position: [31.5497, 74.3436], // Coordinates for Lahore
+  })
+
+  // this will have to be a react-query API call
+  const [container,setContainer] = React.useState<ContainerType[]>(initialContainers.filter((item:ContainerType)  => item.city == "Lahore"))
+
+  // useEffect with will run everything location changes
+  React.useEffect(() => {
+    setContainer(() => {
+      return (
+        initialContainers.filter((item:ContainerType) => item.city == currentLocation.City)
+      )
+    })
+  },[currentLocation])
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -114,9 +167,10 @@ export default function MainBody() {
           <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer'}}>
             Bins
           </Typography>
-          <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer'}}>
+          <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer', flexGrow:1}}>
             Vehicles
             </Typography>
+          <ControlledOpenSelect location={currentLocation.City} setLocation={setCurrentLocation} options = {allLocation} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -176,7 +230,7 @@ export default function MainBody() {
             { text: 'Logout', icon: <LogoutIcon /> },
           ].map((item, index) => (
             <ListItem key={index} disablePadding sx={{ marginLeft: '5px' }}>
-              <ListItemButton>
+              <ListItemButton onClick={() => handleClick(item.text)}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
@@ -190,10 +244,9 @@ export default function MainBody() {
         <DrawerHeader />
         {/* Add your main content here */}
         <Box sx = {root}>
-          <Stats/>
-          <Map/>
+          <StatsMiddleware renderStats = {showStats}  container = {container} currentCity={currentLocation.City} />
+          <Map toggleStats={toggleStats} showStats = {showStats} containers={container} currentLocation = {currentLocation} />
         </Box>
-
       </Main>
     </Box>
   );

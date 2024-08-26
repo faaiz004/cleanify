@@ -1,10 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
-import { dataHeader, editTextStyle, headingStyle, root, row } from "./Styles";
+import {
+  dataHeader,
+  editTextStyle,
+  headingStyle,
+  root,
+  row,
+} from "./Styles";
 import LineChart from "../Line/Index";
 import BarChart from "../Bar/Index";
 import PieChart from "../Pie/Index";
-import { Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, Checkbox, List, ListItem, ListItemIcon } from "@mui/material";
+import {
+  Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Checkbox,
+  List,
+  ListItem,
+  ListItemIcon,
+} from "@mui/material";
 import Switch from "@mui/material/Switch";
 import {
   DndContext,
@@ -25,6 +42,10 @@ import React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import InfoIcon from "@mui/icons-material/Info";
 import AddCardOverlay from "../../../components/AddCardOverlay/Index";
+import { ContainerType } from "../../../pages/Main/constants";
+import { fleetStatus, fleetUsageData } from "./constants";
+import { fleetStatusData } from "./constants";
+import DoughnutChartFleetData from "../fleetStatusDataPie/Index";
 
 // Memoize SortableItem to prevent unnecessary re-renders
 const SortableItem = React.memo(function SortableItem({
@@ -67,39 +88,82 @@ const SortableItem = React.memo(function SortableItem({
   );
 });
 
+interface ChartProps {
+  text: string;
+  editMode: boolean;
+  onDelete?: () => void;
+  containers?: ContainerType[];
+  fleetUsageData?: any;
+  fleetStatusData?:any;
+}
+
 interface Chart {
   id: string;
   show: boolean;
-  component: React.ReactNode;
+  componentProps: ChartProps
 }
 
-export default function Stats() {
+interface StatsProps {
+  containers: ContainerType[];
+  currentCity: string;
+}
+
+const getChartComponent = (chart: Chart): React.ReactNode => {
+
+  const { id, componentProps } = chart;
+
+  switch (id) {
+    case "bar":
+      return <BarChart {...componentProps} />;
+    case "line2":
+      return <LineChart {...componentProps} />;
+    case "pie1":
+      return <DoughnutChartFleetData {...componentProps}/>;
+    case "pie":
+      return <PieChart {...componentProps} />;
+    default:
+      return null; // Return null if ID does not match any known component
+  }
+};
+
+const Stats: React.FC<StatsProps> = ({ containers, currentCity }) => {
   const [editMode, setEditMode] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
+
+    // fleetUsageData
+    const filteredFleetUsageData = useMemo(() => {
+      return fleetUsageData.filter((data) => data.city === currentCity);
+    }, [currentCity]);
+
+    const filteredFleetStatusData = useMemo(() => {
+      return fleetStatusData.filter((data:fleetStatus) => data.location == currentCity);
+    }, [currentCity]);
 
   const [charts, setCharts] = useState<Chart[]>([
     {
       id: "bar",
       show: true,
-      component: <BarChart text="check" editMode={editMode} />,
+      componentProps: { text: "Fleet Usage", editMode: editMode, fleetUsageData:filteredFleetUsageData },
     },
     {
-      id: "line1",
+      id: "pie1",
       show: true,
-      component: <LineChart text="check" editMode={editMode} />,
+      componentProps: { text: "Fleet Status", editMode: editMode , fleetStatusData: filteredFleetStatusData },
     },
     {
       id: "pie",
       show: true,
-      component: <PieChart text="check" editMode={editMode} />,
+      componentProps: { text: "Bins", editMode: editMode, containers: containers },
     },
     {
       id: "line2",
       show: true,
-      component: <LineChart text="ex" editMode={editMode} />,
+      componentProps: { text: "example", editMode: editMode },
     },
   ]);
+
+
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -168,59 +232,68 @@ export default function Stats() {
 
   useEffect(() => {
     setCharts((prevCharts) =>
-      prevCharts.map((chart) => {
-        if (!chart.show) return chart;
-        switch (chart.id) {
-          case "bar":
-            return {
-              ...chart,
-              component: (
-                <BarChart
-                  text="check"
-                  editMode={editMode}
-                  onDelete={() => handleDelete("bar")}
-                />
-              ),
-            };
-          case "line1":
-            return {
-              ...chart,
-              component: (
-                <LineChart
-                  text="check"
-                  editMode={editMode}
-                  onDelete={() => handleDelete("line1")}
-                />
-              ),
-            };
-          case "pie":
-            return {
-              ...chart,
-              component: (
-                <PieChart
-                  text="check"
-                  editMode={editMode}
-                  onDelete={() => handleDelete("pie")}
-                />
-              ),
-            };
-          case "line2":
-            return {
-              ...chart,
-              component: (
-                <LineChart
-                  text="ex"
-                  editMode={editMode}
-                  onDelete={() => handleDelete("line2")}
-                />
-              ),
-            };
-          default:
-            return chart;
-        }
-      })
+      prevCharts.map((chart) => ({
+        ...chart,
+        componentProps: {
+          ...chart.componentProps,
+          editMode: editMode,
+          onDelete: () => handleDelete(chart.id),
+        },
+      }))
     );
-  }, [editMode, handleDelete]);
+  }, [editMode, handleDelete]); // Add handleDelete to the dependency array
+
+
+  useEffect(() => {
+    setCharts((prevCharts) =>
+      prevCharts.map((chart) =>
+        chart.id === "pie" // Only update the pie chart
+          ? {
+              ...chart,
+              componentProps: {
+                ...chart.componentProps,
+                containers: containers, // Update the containers prop
+              },
+            }
+          : chart // Return the chart unchanged if it's not the pie chart
+      )
+    );
+  }, [containers]); // This useEffect will run only when containers change
+
+  useEffect(() => {
+    setCharts((prevCharts) =>
+      prevCharts.map((chart) =>
+        chart.id === "bar" // Only update the pie chart
+          ? {
+              ...chart,
+              componentProps: {
+                ...chart.componentProps,
+                fleetUsageData:filteredFleetUsageData
+              },
+            }
+          : chart // Return the chart unchanged if it's not the pie chart
+      )
+    );
+  }, [filteredFleetUsageData]); // This useEffect will run only when containers change
+
+  useEffect(() => {
+    setCharts((prevCharts) =>
+      prevCharts.map((chart) =>
+        chart.id === "pie1" // Only update the pie chart
+          ? {
+              ...chart,
+              componentProps: {
+                ...chart.componentProps,
+                fleetStatusData: filteredFleetStatusData
+              },
+            }
+          : chart // Return the chart unchanged if it's not the pie chart
+      )
+    );
+  }, [filteredFleetStatusData]); // This useEffect will run only when containers change
+
+  
+  
 
   return (
     <Box sx={root}>
@@ -250,13 +323,13 @@ export default function Stats() {
               .slice(0, 2)
               .map((chart) => (
                 <SortableItem key={chart.id} id={chart.id} editMode={editMode}>
-                  {chart.component}
+                  {getChartComponent(chart)}
                 </SortableItem>
               ))}
-              {editMode && (
+            {editMode && (
               <>
                 {charts
-                  .slice(0,2)
+                  .slice(0, 2)
                   .filter((chart) => !chart.show)
                   .map((chart) => (
                     <AddCardOverlay
@@ -273,10 +346,10 @@ export default function Stats() {
               .slice(2)
               .map((chart) => (
                 <SortableItem key={chart.id} id={chart.id} editMode={editMode}>
-                  {chart.component}
+                  {getChartComponent(chart)}
                 </SortableItem>
               ))}
-              {editMode && (
+            {editMode && (
               <>
                 {charts
                   .slice(2)
@@ -293,37 +366,60 @@ export default function Stats() {
         </SortableContext>
       </DndContext>
 
-      <Dialog open={showAddCardModal} onClose={handleCloseAddCardModal}>
-        <DialogTitle  sx = {{marginLeft: 'auto', marginRight: 'auto'}} > Select Cards to Add</DialogTitle>
-        <DialogContent>
-          <List sx = {{display: 'flex'}}>
+      <Dialog
+        open={showAddCardModal}
+        onClose={handleCloseAddCardModal}
+        sx={{
+          borderRadius: "16px", // Rounded edges for the dialog
+          padding: "16px", // Padding inside the dialog
+          "& .MuiDialog-paper": {
+            borderRadius: "16px", // Ensure the dialog paper also has rounded edges
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            marginLeft: "auto",
+            marginRight: "auto",
+            paddingBottom: "8px", // Adding some padding at the bottom
+          }}
+        >
+          Select Cards to Add
+        </DialogTitle>
+
+        <DialogContent sx={{ padding: "16px" }}>
+          {" "}
+          {/* Adding padding inside the content */}
+          <List sx={{ display: "flex" }}>
             {charts
               .filter((chart) => !chart.show)
               .map((chart) => (
                 <ListItem
-                  sx = {{
-                    display: 'flex',
-                    flexDirection: 'column',
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                   key={chart.id}
                   onClick={() => handleChartSelect(chart.id)}
                 >
-                  {chart.component}
+                  {getChartComponent(chart)}
                   <ListItemIcon>
-                    <Checkbox
-                      checked={selectedCharts.includes(chart.id)}
-                    />
+                    <Checkbox checked={selectedCharts.includes(chart.id)} />
                   </ListItemIcon>
                 </ListItem>
               ))}
           </List>
         </DialogContent>
-        <DialogActions sx = {{marginLeft: 'auto', marginRight: 'auto'}} > 
+
+        <DialogActions
+          sx={{ marginLeft: "auto", marginRight: "auto", paddingTop: "8px" }}
+        >
           <Button onClick={handleCloseAddCardModal}>Cancel</Button>
           <Button
             onClick={() => handleAddCard(selectedCharts)}
             color="primary"
             variant="contained"
+            sx={{ borderRadius: "8px" }} // Rounded edges for the button
           >
             Add Selected
           </Button>
@@ -332,3 +428,5 @@ export default function Stats() {
     </Box>
   );
 }
+
+export default Stats;

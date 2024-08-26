@@ -144,7 +144,7 @@ export default function Index() {
             error={!!errors.message}
             helperText={errors.message}
           />
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
+          <Button variant="contained" sx = {{backgroundColor: 'primary.main'}} onClick={handleSubmit}>
             Send Us A Message
             </Button>
         </Box>
