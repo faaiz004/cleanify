@@ -35,6 +35,6 @@ const userSlice = createSlice({
 
 export const { setUser, clearUser } = userSlice.actions;
 
-export const isSignedIn = (state: { user: UserState }) => !!state.user.access_token;
+export const isSignedIn = (state: { user: UserState }) => !!state?.user?.access_token;
 
 export default userSlice.reducer;

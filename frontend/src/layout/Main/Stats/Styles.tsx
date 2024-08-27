@@ -1,7 +1,7 @@
 import { SxProps, Theme } from "@mui/material";
 
 export const root: SxProps<Theme> = {
-    height: '89vh',
+    height: '100%',
     width: 'auto',
     display: 'flex',
     flexDirection: 'column',

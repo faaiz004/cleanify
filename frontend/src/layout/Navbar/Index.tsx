@@ -84,7 +84,7 @@ export default function DrawerAppBar(props: Props) {
         component="nav"
         sx={{
           backgroundColor: "#FFFFFF",
-          maxHeight: "100px",
+          height: "100px",
           display: "flex",
           justifyContent: "space-between",
           position: 'sticky',

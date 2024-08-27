@@ -46,6 +46,8 @@ import { ContainerType } from "../../../pages/Main/constants";
 import { fleetStatus, fleetUsageData } from "./constants";
 import { fleetStatusData } from "./constants";
 import DoughnutChartFleetData from "../fleetStatusDataPie/Index";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 // Memoize SortableItem to prevent unnecessary re-renders
 const SortableItem = React.memo(function SortableItem({
@@ -105,7 +107,6 @@ interface Chart {
 
 interface StatsProps {
   containers: ContainerType[];
-  currentCity: string;
 }
 
 const getChartComponent = (chart: Chart): React.ReactNode => {
@@ -126,11 +127,12 @@ const getChartComponent = (chart: Chart): React.ReactNode => {
   }
 };
 
-const Stats: React.FC<StatsProps> = ({ containers, currentCity }) => {
+const Stats: React.FC<StatsProps> = ({ containers }) => {
   const [editMode, setEditMode] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
 
+  const currentCity = useSelector((state: RootState) => state.location.currentLocation.Name);
     // fleetUsageData
     const filteredFleetUsageData = useMemo(() => {
       return fleetUsageData.filter((data) => data.city === currentCity);

@@ -1,7 +1,7 @@
 import { SxProps, Theme } from "@mui/material";
 
 export const root: SxProps<Theme> = {
-    height: "89vh",
+    height: 'calc(100vh - 100px)', // Subtract the height of the navbar
     display: "flex",
     flexDirection: "row",
     gap: "20px",

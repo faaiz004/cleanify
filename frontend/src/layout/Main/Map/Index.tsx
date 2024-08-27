@@ -3,8 +3,9 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { Icon, PointExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ContainerType } from "../../../pages/Main/constants";
-import { LocationObj } from "../../../pages/Main/Index";
 import MarkerClusterGroup from 'react-leaflet-cluster'
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 // Function to create a custom icon with a specific color
 const createCustomIcon = (color: string, size: PointExpression = [38, 38]) => {
@@ -74,13 +75,11 @@ const resizeMap = (mapRef: any) => {
   }
 };
 
-interface FlyToAPosProps {
-  currentLocation: LocationObj;
-}
 
-const FlyToAPos: React.FC<FlyToAPosProps> = ({ currentLocation }) => {
+
+const FlyToAPos: React.FC = () => {
   const map = useMap();
-
+  const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
   useEffect(() => {
     if (map && currentLocation) {
       map.flyTo(currentLocation.Position as [number, number], 13); // Adjust zoom level as needed
@@ -90,14 +89,13 @@ const FlyToAPos: React.FC<FlyToAPosProps> = ({ currentLocation }) => {
   return null; // No need to render anything
 };
 
-const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: ContainerType[], currentLocation: LocationObj }> = ({
+const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: ContainerType[] }> = ({
   toggleStats,
   showStats,
   containers,
-  currentLocation
 }) => {
   const mapRef = useRef(null);
-
+  const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
   const markers = useMemo(() => {
     return containers.map((container) => ({
       geocode: [container.location.coordinates.lat, container.location.coordinates.lon] as [number, number],
@@ -108,9 +106,9 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
 
   return (
     <MapContainer
-      center={[31.5497, 74.3436]}
+      center={currentLocation.Position as [number, number] || [31.5497, 74.3436]}
       zoom={13}
-      style={{ height: "87vh", width: "100%", zIndex: 0 }}
+      style={{ height: "100%", width: "100%", zIndex: 0 }}
       ref={mapRef}
       id="map-container"
       whenReady={() => resizeMap(mapRef)}
@@ -129,7 +127,7 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
 
       {/* Toggle button here */}
       <ToggleEditButton showEdits={showStats} toggleEdit={toggleStats} />
-      <FlyToAPos currentLocation={currentLocation} />
+      <FlyToAPos/>
     </MapContainer>
   );
 };

@@ -6,10 +6,9 @@ import Stats from '../Stats/Index';
 interface StatsMiddlewareProps {
   renderStats: boolean;
   container: ContainerType[];
-  currentCity: string;
 }
 
-const StatsMiddleware: React.FC<StatsMiddlewareProps> = ({ renderStats, container, currentCity }) => {
+const StatsMiddleware: React.FC<StatsMiddlewareProps> = ({ renderStats, container }) => {
   return (
     <Slide 
       in={renderStats} 
@@ -18,7 +17,7 @@ const StatsMiddleware: React.FC<StatsMiddlewareProps> = ({ renderStats, containe
       unmountOnExit
     >
       <div>
-        <Stats containers = {container} currentCity={currentCity} />
+        <Stats containers = {container} />
       </div>
     </Slide>
   );

@@ -31,7 +31,8 @@ import { dividerStyle, root } from './Styles';
 import Map from '../../layout/Main/Map/Index';
 import StatsMiddleware from '../../layout/Main/StatsMiddleWare/Index';
 import { clearUser } from '../../redux/userSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 import { containers as initialContainers } from './constants';
 import { ContainerType } from './constants';
 import ControlledOpenSelect from '../../components/Select/Index';
@@ -130,10 +131,8 @@ export default function MainBody() {
     },
   ]);
 
-  const [currentLocation, setCurrentLocation] = React.useState<LocationObj>({
-    City: 'Lahore',
-    Position: [31.5497, 74.3436], // Coordinates for Lahore
-  })
+  // Get the current location from the store
+  const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
 
   // this will have to be a react-query API call
   const [container,setContainer] = React.useState<ContainerType[]>(initialContainers.filter((item:ContainerType)  => item.city == "Lahore"))
@@ -142,7 +141,7 @@ export default function MainBody() {
   React.useEffect(() => {
     setContainer(() => {
       return (
-        initialContainers.filter((item:ContainerType) => item.city == currentLocation.City)
+        initialContainers.filter((item:ContainerType) => item.city == currentLocation.Name)
       )
     })
   },[currentLocation])
@@ -170,7 +169,7 @@ export default function MainBody() {
           <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer', flexGrow:1}}>
             Vehicles
             </Typography>
-          <ControlledOpenSelect location={currentLocation.City} setLocation={setCurrentLocation} options = {allLocation} />
+          <ControlledOpenSelect options = {allLocation} />
         </Toolbar>
       </AppBar>
       <Drawer
@@ -244,8 +243,8 @@ export default function MainBody() {
         <DrawerHeader />
         {/* Add your main content here */}
         <Box sx = {root}>
-          <StatsMiddleware renderStats = {showStats}  container = {container} currentCity={currentLocation.City} />
-          <Map toggleStats={toggleStats} showStats = {showStats} containers={container} currentLocation = {currentLocation} />
+          <StatsMiddleware renderStats = {showStats}  container = {container} />
+          <Map toggleStats={toggleStats} showStats = {showStats} containers={container}  />
         </Box>
       </Main>
     </Box>
