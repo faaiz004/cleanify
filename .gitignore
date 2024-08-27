@@ -1,2 +1,7 @@
 /frontend/node_modules/
 /backend/.env
+.*/
+.*
+.gitignore
+__*/
+__pycache__/
