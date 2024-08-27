@@ -306,7 +306,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Typography sx={editTextStyle}>Edit</Typography>
           <Switch checked={editMode} onChange={handleEditToggle} />
-          <Tooltip title="Toggle the edit mode to rearrange charts from the dashboard. Inorder to delete a chart drag it to the delete button at the bottom.">
+          <Tooltip title="Toggle the edit mode to rearrange charts from the dashboard. Inorder to delete a chart press the delete button.">
             <InfoIcon sx={{ color: "gray" }} />
           </Tooltip>
         </Box>
@@ -331,7 +331,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
                 </SortableItem>
               ))}
             {editMode && (
-              <>
+              <Box sx = {{height: '100%', width: '100%'}}> 
                 {charts
                   .slice(0, 2)
                   .filter((chart) => !chart.show)
@@ -341,7 +341,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
                       onAdd={handleOpenAddCardModal}
                     />
                   ))}
-              </>
+              </Box>
             )}
           </Box>
           <Box sx={row}>
@@ -354,7 +354,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
                 </SortableItem>
               ))}
             {editMode && (
-              <>
+              <Box sx = {{height: '100%', width: '100%'}}>
                 {charts
                   .slice(2)
                   .filter((chart) => !chart.show)
@@ -364,7 +364,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
                       onAdd={handleOpenAddCardModal}
                     />
                   ))}
-              </>
+              </Box>
             )}
           </Box>
         </SortableContext>
