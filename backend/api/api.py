@@ -7,7 +7,9 @@ from backend.api.utils import *
 from backend.models.user import *
 from backend.models.container import *
 from backend.models.vehicle import *
+from backend.models.area import *
 from backend.exception_types import *
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -100,16 +102,38 @@ def create_container(uow:UnitOfWork, req):
     ).__dict__
 
 
-# curl  http://127.0.0.1:5000/get-all-containers
-@app.route('/get-all-containers', methods=['GET'])
+# curl  http://127.0.0.1:5000/get-all-containers-filtered-by-area?area_id=""
+@app.route('/get-all-containers-filtered-by-area', methods=['GET'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
 @validate_get_payload(params=[])
-def get_all_containers(uow: UnitOfWork, req):
+def get_all_containers_filtered_by_area(uow: UnitOfWork, req):
+    """area_id is optional"""
+
     c_list = uow.containers.get_all()
+    
+    if not request.args.get("area_id"):
+        return Response(
+            message="All Containers Returned",
+            status_code=200,
+            data=c_list
+        ).__dict__
+    
+    area = uow.areas.get(request.args.get("area_id"))
+    if not area:
+        raise UowCloseRaiseCustom("AreaDoesNotExist", f"Area with id {req['area_id']} does not exist")
+    
+    c_list = area.filter_obj_with_locations(c_list)
+
+    # randomly select fill status 'OVERFLOWING' 'FULL' 'NORMAL' 'EMPTY'
+    # TODO: set this on the basis of the depth measurement
+    c_dicts = [c.__dict__ for c in c_list]
+    for c in c_dicts:
+        c["fill_status"] = random.choice(["OVERFLOWING", "FULL", "NORMAL", "EMPTY"])
+    
     return Response(
         message="All Containers Returned",
         status_code=200,
-        data=c_list
+        data=c_dicts
     ).__dict__
 
 
@@ -138,4 +162,70 @@ def create_vehicle(uow:UnitOfWork, req):
     return Response(
         message="Vehicle Created Successfully",
         status_code=200,
+    ).__dict__
+
+
+# curl -X POST -d '{"center":"(0,0)", "radius": 10}' http://127.0.0.1:5000/create-area
+@app.route('/create-area', methods=['POST'])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
+@validate_post_payload(params=["center", "radius"])
+def create_area(uow:UnitOfWork, req):
+    
+    validate_location(req["center"])
+
+    a = Area(
+        id=str(uuid4()),
+        center=req["center"],
+        radius=req["radius"]
+    )
+
+    uow.areas.add(a)
+    
+    return Response(
+        message="Area Created Successfully",
+        status_code=200,
+    ).__dict__
+
+# curl -X GET http://127.0.0.1:5000/get-all-areas
+@app.route('/get-all-areas', methods=['GET'])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
+@validate_get_payload(params=[])
+def get_all_areas(uow: UnitOfWork, req):
+    
+    a_list = uow.areas.get_all()
+    
+    return Response(
+        message="All Areas Returned",
+        status_code=200,
+        data=a_list
+    ).__dict__
+
+# curl -X GET http://127.0.0.1:5000/get-all-vehicles-of-a-user-filtered-by-area?user_id="2519d1fa-66aa-4869-86b8-d919acbf4b9c"&area_id=""
+@app.route('/get-all-vehicles-of-a-user-filtered-by-area', methods=['GET'])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
+@validate_get_payload(params=["user_id"])
+def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
+    
+    if not uow.users.get(request.args.get("user_id")):
+        raise UowCloseRaiseCustom("UserDoesNotExist", f"User with id {req['user_id']} does not exist")
+    
+    v_list = uow.vehicles.get_all_of_user(user_id=request.args.get("user_id"))
+
+    if not request.args.get("area_id"):
+        return Response(
+            message="All Vehicles Returned",
+            status_code=200,
+            data=v_list
+        ).__dict__
+    
+    area = uow.areas.get(request.args.get("area_id"))
+    if not area:
+        raise UowCloseRaiseCustom("AreaDoesNotExist", f"Area with id {req['area_id']} does not exist")
+    
+    v_list = area.filter_obj_with_locations(v_list)
+
+    return Response(
+        message="All Vehicles Returned",
+        status_code=200,
+        data=v_list
     ).__dict__

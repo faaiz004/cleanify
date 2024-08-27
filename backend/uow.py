@@ -3,6 +3,7 @@ from os import environ as env
 from backend.repositories.user import UserRepository
 from backend.repositories.container import ContainerRepository
 from backend.repositories.vehicle import VehicleRepository
+from backend.repositories.area import AreaRepository
 class UnitOfWork:
     
     def __init__(self):
@@ -25,6 +26,7 @@ class UnitOfWork:
         self.users = UserRepository(self.connection)
         self.containers = ContainerRepository(self.connection)
         self.vehicles = VehicleRepository(self.connection)
+        self.areas = AreaRepository(self.connection)
 
     def commit_close(self):
         self.connection.commit()

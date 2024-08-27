@@ -29,3 +29,8 @@ class VehicleRepository:
         self.cursor.execute("SELECT * FROM vehicles")
         rows = self.cursor.fetchall()
         return [Vehicle(**c) for c in rows]
+    
+    def get_all_of_user(self, user_id: str) -> t.List[Vehicle]:
+        self.cursor.execute(f"SELECT * FROM vehicles WHERE user_id = '{user_id}'")
+        rows = self.cursor.fetchall()
+        return [Vehicle(**c) for c in rows]
