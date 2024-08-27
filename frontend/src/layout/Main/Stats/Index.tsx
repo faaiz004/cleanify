@@ -77,6 +77,8 @@ const SortableItem = React.memo(function SortableItem({
     transition: editMode ? transition : undefined,
     opacity: isDragging ? 0.5 : 1,
     zIndex: 100,
+    width: "100%",
+    height: "100%",
   };
 
   return (

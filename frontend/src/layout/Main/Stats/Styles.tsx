@@ -1,15 +1,19 @@
 import { SxProps, Theme } from "@mui/material";
 
 export const root: SxProps<Theme> = {
-    height: '100%',
-    width: 'auto',
+    height: 'calc(100vh - 100px)', // Subtract the height of the navbar
+    width: {
+        sm: '380px',
+        md: '420px',
+        lg: '520px',
+    },
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
 }
 
 export const dataHeader: SxProps<Theme> = {
-    width: '520px',
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
     paddingY: '10px',
@@ -27,6 +31,18 @@ export const editTextStyle: SxProps<Theme> = {
     color: 'black',
 }
 
+
+export const headingStyle: SxProps<Theme> = {
+    fontFamily: 'Raleway',
+    fontSize: {
+        sm: '16px',
+        md: '20px',
+        lg: '24px',
+    },
+    fontWeight: 700,
+    color: '#6B9AB6',
+}
+
 export const row: SxProps<Theme> = {
     width: '100%',
     height: '50%',
@@ -35,18 +51,14 @@ export const row: SxProps<Theme> = {
     alignItems: 'center'
 }
 
-export const headingStyle: SxProps<Theme> = {
-    fontFamily: 'Raleway',
-    fontSize: '28px',
-    fontWeight: 700,
-    color: '#6B9AB6',
-}
-
-
 
 export const Container: SxProps<Theme> = {
-    width: '250px',
-    height: '300px',
+    width: {
+        sm: '180px',
+        md: '200px',
+        lg: '250px',
+    },
+    height: '100%',
     borderRadius: '10px',
     backgroundColor: 'white',
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
@@ -69,8 +81,12 @@ export const headingContainer: SxProps<Theme> = {
 
 
 export const grahContainer: SxProps<Theme> = {
-    width: '200px',
-    height: '250px',
+    width: {
+        sm: '140px',
+        md: '150px',
+        lg: '200px',
+    },
+    height: '80%',
 }
 
 
