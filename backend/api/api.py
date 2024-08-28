@@ -198,9 +198,6 @@ def get_all_areas(uow: UnitOfWork, req):
 @validate_get_payload(params=["user_id"])
 def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
     
-    if not uow.users.get(request.args.get("user_id")):
-        raise UowCloseRaiseCustom("UserDoesNotExist", f"User with id {req['user_id']} does not exist")
-    
     v_list = uow.vehicles.get_all_of_user(user_id=request.args.get("user_id"))
 
     if not request.args.get("area_id"):
