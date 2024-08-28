@@ -116,16 +116,11 @@ def get_all_containers_filtered_by_area(uow: UnitOfWork, req):
     area = uow.areas.get(request.args.get("area_id"))    
     c_list = area.filter_obj_with_locations(c_list)
 
-    # randomly select fill status 'OVERFLOWING' 'FULL' 'NORMAL' 'EMPTY'
-    # TODO: set this on the basis of the depth measurement
-    c_dicts = [c.__dict__ for c in c_list]
-    for c in c_dicts:
-        c["fill_status"] = random.choice(["OVERFLOWING", "FULL", "NORMAL", "EMPTY"])
     
     return Response(
         message="All Containers Returned",
         status_code=200,
-        data=c_dicts
+        data=c_list
     ).__dict__
 
 
