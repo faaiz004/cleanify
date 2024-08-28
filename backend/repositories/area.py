@@ -1,7 +1,7 @@
 from psycopg2.extras import DictCursor
 from backend.models.area import Area
 import typing as t
-from exception_types import *
+from backend.exception_types import *
 class AreaRepository:
     def __init__(self, connection):
         self.connection = connection
