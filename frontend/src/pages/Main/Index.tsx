@@ -151,17 +151,24 @@ export default function MainBody() {
   // Get the current location from the store
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
 
-  // this will have to be a react-query API call
-  const [container,setContainer] = React.useState<ContainerType[]>(initialContainers.filter((item:ContainerType)  => item.city == "Lahore"))
 
-  // useEffect with will run everything location changes
-  React.useEffect(() => {
-    setContainer(() => {
-      return (
-        initialContainers.filter((item:ContainerType) => item.city == currentLocation.Name)
-      )
-    })
-  },[currentLocation])
+   // simulating an API call to get the containers
+  const fetchContainers = async (): Promise<ContainerType[]> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(initialContainers.filter((item:ContainerType) => item.city == currentLocation.Name));
+      }, 1000);
+    });
+  }
+
+
+  // Query for fetching containers
+  const { data: container = [], isLoading: containerLoading, error: containerError } = useQuery({
+    queryKey: ['containers',currentLocation],
+    queryFn: () => fetchContainers(),
+    enabled: !!currentLocation
+  });
+
 
   return (
     <Box sx={{ display: 'flex' }}>
