@@ -1,7 +1,7 @@
 from psycopg2.extras import DictCursor
 from backend.models.area import Area
 import typing as t
-
+from exception_types import *
 class AreaRepository:
     def __init__(self, connection):
         self.connection = connection
@@ -23,7 +23,11 @@ class AreaRepository:
     def get(self, id: str) -> Area:
         self.cursor.execute(f"SELECT * FROM areas WHERE id = '{id}'")
         area = self.cursor.fetchone()
-        return Area(**area) if area else None
+
+        if not area:
+            raise UowCloseRaiseCustom("AreaDoesNotExist", f"Area with id {id} does not exist")
+
+        return Area(**area)
     
     def get_all(self) -> t.List[Area]:
         self.cursor.execute("SELECT * FROM areas")

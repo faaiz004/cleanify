@@ -1,6 +1,6 @@
 from psycopg2.extras import DictCursor
 from backend.models.user import User
-
+from exception_types import *
 class UserRepository:
     def __init__(self, connection):
         self.connection = connection
@@ -23,12 +23,17 @@ class UserRepository:
     def get(self, id: str) -> User:
         self.cursor.execute(f"SELECT * FROM users WHERE id = '{id}'")
         user = self.cursor.fetchone()
-        return User(**user) if user else None
+
+        if not user:
+            raise UowCloseRaiseCustom("UserDoesNotExist", f"User with id {id} does not exist")
+        
+        return User(**user)
 
     def get_by_email(self, email:str) -> User:
         self.cursor.execute(f"SELECT * FROM users WHERE email = '{email}'")
         user = self.cursor.fetchone()
+        
         if not user:
-            return None
+            raise UowCloseRaiseCustom("UserDoesNotExist", f"User with email {email} does not exist")
         
         return User(**user)

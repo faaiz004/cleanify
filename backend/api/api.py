@@ -9,6 +9,8 @@ from backend.models.container import *
 from backend.models.vehicle import *
 from backend.models.area import *
 from backend.exception_types import *
+from backend.models.utils import *
+
 import random
 
 app = Flask(__name__)
@@ -60,8 +62,7 @@ def log_in(uow:UnitOfWork, req):
     
     u = uow.users.get_by_email(email=req["email"])
     
-    if not u:
-        raise UowCloseRaiseCustom("UserDoesNotExist", f"User with email {req['email']} does not exist")
+    
     if req["password"] != u.password:
         raise UowCloseRaiseCustom("InvalidPassword", "Password incorrect")
     
@@ -72,19 +73,13 @@ def log_in(uow:UnitOfWork, req):
         data=u.id
     ).__dict__
 
-def validate_location(l: str):
-    try:
-        lat, long= int(l.split(",")[0][1:]), int(l.split(",")[1][:-1])
-    except Exception as e:
-        raise UowCloseRaiseCustom("InvalidFormat", "The location should be in the (float, float) format")
-
 # curl -X POST -d '{"location":"(0,0)"}' http://127.0.0.1:5000/create-container
 @app.route('/create-container', methods=['POST'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
 @validate_post_payload(params=["location"])
 def create_container(uow:UnitOfWork, req):
     
-    validate_location(req["location"])
+    Location(req["location"]).validate()
 
     c = Container(
         id=str(uuid4()),
@@ -118,10 +113,7 @@ def get_all_containers_filtered_by_area(uow: UnitOfWork, req):
             data=c_list
         ).__dict__
     
-    area = uow.areas.get(request.args.get("area_id"))
-    if not area:
-        raise UowCloseRaiseCustom("AreaDoesNotExist", f"Area with id {req['area_id']} does not exist")
-    
+    area = uow.areas.get(request.args.get("area_id"))    
     c_list = area.filter_obj_with_locations(c_list)
 
     # randomly select fill status 'OVERFLOWING' 'FULL' 'NORMAL' 'EMPTY'
@@ -143,10 +135,9 @@ def get_all_containers_filtered_by_area(uow: UnitOfWork, req):
 @validate_post_payload(params=["user_id", "location"])
 def create_vehicle(uow:UnitOfWork, req):
     
-    validate_location(req["location"])
+    Location(req["location"]).validate()
     u = uow.users.get(req["user_id"])
-    if not u:
-        raise UowCloseRaiseCustom("UserDoesNotExist", f"User with id {req['user_id']} does not exist")
+   
     if u.type != "GOVERNMENT":
         raise UowCloseRaiseCustom("InvalidUserType", "Only government users can create vehicles!")
     
@@ -165,18 +156,19 @@ def create_vehicle(uow:UnitOfWork, req):
     ).__dict__
 
 
-# curl -X POST -d '{"center":"(0,0)", "radius": 10}' http://127.0.0.1:5000/create-area
+# curl -X POST -d '{"center":"(0,0)", "radius": 10, "name":"Kalma chowk"}' http://127.0.0.1:5000/create-area
 @app.route('/create-area', methods=['POST'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
-@validate_post_payload(params=["center", "radius"])
+@validate_post_payload(params=["center", "radius", "name"])
 def create_area(uow:UnitOfWork, req):
     
-    validate_location(req["center"])
+    Location(req["center"]).validate()
 
     a = Area(
         id=str(uuid4()),
         center=req["center"],
-        radius=req["radius"]
+        radius=req["radius"],
+        name=req["name"]
     )
 
     uow.areas.add(a)
@@ -218,10 +210,7 @@ def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
             data=v_list
         ).__dict__
     
-    area = uow.areas.get(request.args.get("area_id"))
-    if not area:
-        raise UowCloseRaiseCustom("AreaDoesNotExist", f"Area with id {req['area_id']} does not exist")
-    
+    area = uow.areas.get(request.args.get("area_id"))    
     v_list = area.filter_obj_with_locations(v_list)
 
     return Response(
