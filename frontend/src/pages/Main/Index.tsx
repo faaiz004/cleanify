@@ -36,6 +36,8 @@ import { RootState } from '../../redux/store';
 import { containers as initialContainers } from './constants';
 import { ContainerType } from './constants';
 import ControlledOpenSelect from '../../components/Select/Index';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@mui/material';
 
 
 export interface LocationObj {
@@ -119,17 +121,32 @@ export default function MainBody() {
       dispatch(clearUser());
     } 
   }
-  // State Management for the current location
-  const [allLocation, setAllLocation] = React.useState<LocationObj[]>([
-    {
-      City: 'Lahore',
-      Position: [31.5497, 74.3436], // Coordinates for Lahore
-    },
-    {
-      City: 'Islamabad',
-      Position: [33.6844, 73.0479], // Coordinates for Islamabad
-    },
-  ]);
+
+  const fetchLocations = async (): Promise<LocationObj[]> => {
+    // Simulate an API call
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          {
+            City: 'Lahore',
+            Position: [31.5497, 74.3436], // Coordinates for Lahore
+          },
+          {
+            City: 'Islamabad',
+            Position: [33.6844, 73.0479], // Coordinates for Islamabad
+          },
+        ]);
+      }, 1000); // Simulate a network delay
+    });
+  };
+
+
+   // Query for fetching locations
+   const { data: allLocation = [], isLoading, error } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => fetchLocations(),
+    staleTime: Infinity, // Prevents refetching
+   });
 
   // Get the current location from the store
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
@@ -169,7 +186,24 @@ export default function MainBody() {
           <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer', flexGrow:1}}>
             Vehicles
             </Typography>
-          <ControlledOpenSelect options = {allLocation} />
+          {
+            // Add the ControlledOpenSelect component here
+            isLoading ? (
+              <>
+                <Skeleton variant="rectangular" width={150} height={30} />
+              </>
+            ) : (
+              error ? (
+                <Typography variant="h6" noWrap component="div" sx ={{cursor: 'pointer'}}>
+                  Something went wrong
+                </Typography>
+              ) : (
+                (
+                  <ControlledOpenSelect options = {allLocation} />
+                )
+              )
+            )
+          }
         </Toolbar>
       </AppBar>
       <Drawer
