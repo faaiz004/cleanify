@@ -1,7 +1,7 @@
 from psycopg2.extras import DictCursor
 from backend.models.container import Container
 import typing as t
-from exception_types import *
+from backend.exception_types import *
 class ContainerRepository:
     def __init__(self, connection):
         self.connection = connection

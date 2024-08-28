@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from exception_types import *
+from backend.exception_types import *
 
 @dataclass(frozen=True)
 class Location:

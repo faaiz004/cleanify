@@ -1,6 +1,6 @@
 from psycopg2.extras import DictCursor
 from backend.models.user import User
-from exception_types import *
+from backend.exception_types import *
 class UserRepository:
     def __init__(self, connection):
         self.connection = connection
