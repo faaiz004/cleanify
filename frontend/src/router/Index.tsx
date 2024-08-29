@@ -10,6 +10,7 @@ import { lazy, Suspense } from "react";
 import Navbar from "../layout/Navbar/Index";
 import ProtectedRoute from "./Private/Index";
 import PublicRoute from "./Public/Index";
+import SideBar from "../layout/SideBar/Index";
 
 // Lazy load the components
 const Home = lazy(() => import("../pages/Home/Index"));
@@ -28,6 +29,17 @@ const NavbarLayout: React.FC = () => {
     </PublicRoute>
   );
 };
+
+const SideBarLayout: React.FC = () => {
+  return (
+    <ProtectedRoute>
+      <>
+        <SideBar />
+        <Outlet />
+      </>
+    </ProtectedRoute>
+  );
+}
 
 export default function RouterComponent() {
   return (
@@ -67,17 +79,16 @@ export default function RouterComponent() {
           }
         />
         </Route>
-        <Route
-          path="/main"
-          element={
-            <ProtectedRoute>
-            <Suspense fallback={<div>...Loading</div>}>
-              <MainBody />
-            </Suspense>
-            </ProtectedRoute>
-
-          }
-        />
+        <Route element={<SideBarLayout />}>
+          <Route
+            path="/main"
+            element={
+              <Suspense fallback={<div>...Loading</div>}>
+                <MainBody />
+              </Suspense>
+            }
+          />
+        </Route>
 
       </Routes>
     </Router>

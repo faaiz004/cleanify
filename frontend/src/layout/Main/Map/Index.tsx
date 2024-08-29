@@ -1,6 +1,5 @@
 import React, { useRef, useMemo, useEffect } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
-import { Icon, PointExpression } from "leaflet";
+import { MapContainer, Marker, Popup, TileLayer  } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ContainerType } from "../../../pages/Main/constants";
 import MarkerClusterGroup from 'react-leaflet-cluster'
@@ -8,20 +7,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { stringToNumberTuple } from "../../../components/Select/Index";
 import { Vehicle, initialVehicles } from "./constants";
+import Status from "../../../components/Status/Index";
+import CreateCustomIcon from "./CreateCustomIcon/Index";
+import FlyToAPos from "./FlyToAPos/Index";
 
 
-// Function to create a custom icon with a specific color
-const createCustomIcon = (color: string, size: PointExpression = [38, 38]) => {
-  return new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="${color}">
-        <circle cx="12" cy="12" r="10"/>
-      </svg>
-    `)}`,
-    iconSize: size,
-    iconAnchor: [19, 38], // Adjusted to make the circle center aligned
-  });
-};
+
 
 // Define the color mappings
 const colorMap: { [key in 'OVERFLOWING' | 'FULL' | 'NORMAL' | 'EMPTY' ]: string } = {
@@ -63,7 +54,7 @@ const ToggleEditButton: React.FC<{
           : "#3f51b5";
       }}
     >
-      {showEdits ? "Disable Edits" : "Enable Edits"}
+      {showEdits ? "Hide Stats" : "Show Stats"}
     </button>
   );
 };
@@ -79,24 +70,16 @@ const resizeMap = (mapRef: any) => {
 };
 
 
-
-const FlyToAPos: React.FC = () => {
-  const map = useMap();
-  const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
-  useEffect(() => {
-    if (map && currentLocation) {
-      map.flyTo(currentLocation.Position as [number, number], 13); // Adjust zoom level as needed
-    }
-  }, [currentLocation, map]);
-
-  return null; // No need to render anything
-};
-
-const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: ContainerType[] }> = ({
+const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: ContainerType[], containerError: any }> = ({
   toggleStats,
   showStats,
   containers,
+  containerError,
 }) => {
+
+  console.log('container error in map', containerError);
+
+
   const mapRef = useRef(null);
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
   const markers = useMemo(() => {
@@ -104,7 +87,7 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
     containers?.map((container) => ({
       geocode: stringToNumberTuple(container.location) as [number, number],
       popUp: `${container.fill_status}`,
-      icon: createCustomIcon(colorMap[container.fill_status]),
+      icon: CreateCustomIcon(colorMap[container.fill_status]),
     })): 
     [];
   }, [containers]);
@@ -115,7 +98,7 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
     return vehicles.map((vehicle) => ({
       position: vehicle.position,
       id: vehicle.id,
-      icon: createCustomIcon("yellow"), // Yellow for vehicles
+      icon: CreateCustomIcon("yellow"), // Yellow for vehicles
     }));
   }, [vehicles]);
 
@@ -144,7 +127,7 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
     <MapContainer
       center={currentLocation.Position as [number, number] || [31.5497, 74.3436]}
       zoom={13}
-      style={{ height: "100%", width: "100%", zIndex: 0 }}
+      style={{ height: "100%", width: "100%", zIndex: 0, position: "relative" }}
       ref={mapRef}
       id="map-container"
       whenReady={() => resizeMap(mapRef)}
@@ -173,6 +156,9 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
 
       {/* Toggle button here */}
       <ToggleEditButton showEdits={showStats} toggleEdit={toggleStats} />
+      {/* Status component */}
+      <Status  error={containerError} />
+      {/* Fly to a location */}
       <FlyToAPos/>
     </MapContainer>
   );
