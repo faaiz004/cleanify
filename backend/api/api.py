@@ -62,7 +62,6 @@ def log_in(uow:UnitOfWork, req):
     
     u = uow.users.get_by_email(email=req["email"])
     
-    
     if req["password"] != u.password:
         raise UowCloseRaiseCustom("InvalidPassword", "Password incorrect")
     
@@ -124,12 +123,15 @@ def get_all_containers_filtered_by_area(uow: UnitOfWork, req):
     ).__dict__
 
 
-# curl -X POST -d '{"user_id":""2519d1fa-66aa-4869-86b8-d919acbf4b9c, "location":"(0,0)"}' http://127.0.0.1:5000/create-vehicle
+# PRIVATE 
+# curl -X POST -d '{"user_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)"}' http://127.0.0.1:5000/create-vehicle
+# GOVERMEMT 
+# curl -X POST -d '{"user_id":"45ebdcc4-f922-44e8-8bfb-0137616b2602", "location":"(0,0)"}' http://127.0.0.1:5000/create-vehicle
 @app.route('/create-vehicle', methods=['POST'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
 @validate_post_payload(params=["user_id", "location"])
 def create_vehicle(uow:UnitOfWork, req):
-    
+
     Location(req["location"]).validate()
     u = uow.users.get(req["user_id"])
    
@@ -187,17 +189,17 @@ def get_all_areas(uow: UnitOfWork, req):
         data=a_list
     ).__dict__
 
-# curl -X GET http://127.0.0.1:5000/get-all-vehicles-of-a-user-filtered-by-area?user_id="2519d1fa-66aa-4869-86b8-d919acbf4b9c"&area_id=""
+# curl -X GET http://127.0.0.1:5000/get-all-vehicles-of-a-user-filtered-by-area?user_id=2519d1fa-66aa-4869-86b8-d919acbf4b9c&area_id=
 @app.route('/get-all-vehicles-of-a-user-filtered-by-area', methods=['GET'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
 @validate_get_payload(params=["user_id"])
 def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
     
     v_list = uow.vehicles.get_all_of_user(user_id=request.args.get("user_id"))
-
+    print(request.args)
     if not request.args.get("area_id"):
         return Response(
-            message="All Vehicles Returned",
+            message="All Vehicles Returned (No Area Filter)",
             status_code=200,
             data=v_list
         ).__dict__
@@ -206,7 +208,7 @@ def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
     v_list = area.filter_obj_with_locations(v_list)
 
     return Response(
-        message="All Vehicles Returned",
+        message="All Vehicles Returned (Area Filter)",
         status_code=200,
         data=v_list
     ).__dict__
