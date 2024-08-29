@@ -6,6 +6,9 @@ import { ContainerType } from "../../../pages/Main/constants";
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { stringToNumberTuple } from "../../../components/Select/Index";
+import { Vehicle, initialVehicles } from "./constants";
+
 
 // Function to create a custom icon with a specific color
 const createCustomIcon = (color: string, size: PointExpression = [38, 38]) => {
@@ -21,11 +24,11 @@ const createCustomIcon = (color: string, size: PointExpression = [38, 38]) => {
 };
 
 // Define the color mappings
-const colorMap: { [key in any]: string } = {
-  Overflowing: "red",
-  Full: "orange",
-  Normal: "green",
-  Empty: "blue",
+const colorMap: { [key in 'OVERFLOWING' | 'FULL' | 'NORMAL' | 'EMPTY' ]: string } = {
+  OVERFLOWING: "red",
+  FULL: "orange",
+  NORMAL: "green",
+  EMPTY: "blue",
 };
 
 const ToggleEditButton: React.FC<{
@@ -97,12 +100,45 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
   const mapRef = useRef(null);
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
   const markers = useMemo(() => {
-    return containers.map((container) => ({
-      geocode: [container.location.coordinates.lat, container.location.coordinates.lon] as [number, number],
-      popUp: `${container.status} at ${container.location.name}`,
-      icon: createCustomIcon(colorMap[container.status]),
-    }));
+    return containers?.length > 0 ? 
+    containers?.map((container) => ({
+      geocode: stringToNumberTuple(container.location) as [number, number],
+      popUp: `${container.fill_status}`,
+      icon: createCustomIcon(colorMap[container.fill_status]),
+    })): 
+    [];
   }, [containers]);
+
+  const [vehicles, setVehicles] = React.useState<Vehicle[]>(initialVehicles);
+
+  const vehicleMarkers = useMemo(() => {
+    return vehicles.map((vehicle) => ({
+      position: vehicle.position,
+      id: vehicle.id,
+      icon: createCustomIcon("yellow"), // Yellow for vehicles
+    }));
+  }, [vehicles]);
+
+  // Function to update vehicle positions
+  const updateVehiclePositions = (newPositions: Vehicle[]) => {
+    setVehicles(newPositions);
+  };
+
+  // Simulate vehicle position updates (Replace with your real-time data fetching logic)
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const newVehiclePositions: Vehicle[] = vehicles.map((vehicle) => ({
+        ...vehicle,
+        position: [
+          vehicle.position[0] + (Math.random() - 0.5) * 0.01, // Randomize position slightly
+          vehicle.position[1] + (Math.random() - 0.5) * 0.01,
+        ],
+      }));
+      updateVehiclePositions(newVehiclePositions);
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, [vehicles]);
 
   return (
     <MapContainer
@@ -117,10 +153,20 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      {/* Marker Cluster Group for Containers */}
       <MarkerClusterGroup>
-        {markers.map((marker, index) => (
+        {markers?.length > 0 && markers?.map((marker, index) => (
           <Marker key={index} position={marker.geocode} icon={marker.icon}>
             <Popup>{marker.popUp}</Popup>
+          </Marker>
+        ))}
+      </MarkerClusterGroup>
+
+      {/* Marker Cluster Group for Vehicles */}
+      <MarkerClusterGroup>
+        {vehicleMarkers.map((marker) => (
+          <Marker key={marker.id} position={marker.position} icon={marker.icon}>
+            <Popup>{marker.id}</Popup>
           </Marker>
         ))}
       </MarkerClusterGroup>

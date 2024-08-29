@@ -7,9 +7,11 @@ import {
   headingStyle,
 } from "../Stats/Styles";
 import { Box, Typography } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import { ContainerType } from "../../../pages/Main/constants";
 import { useMemo } from "react";
+import { Skeleton } from "@mui/material";
+import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
 
 Chartjs.register(ArcElement, Title, Tooltip, Legend);
 
@@ -18,16 +20,16 @@ export default function DoughnutChart({
   editMode,
   onDelete,
   containers,
-  fleetStatusData,
+  containerLoading,
+  containerError,
 }: {
   text: string;
   editMode: boolean;
-  onDelete?: any
-  containers?: ContainerType[]
-  fleetStatusData?:any;
+  onDelete?: any;
+  containers?: ContainerType[];
+  containerLoading?: boolean;
+  containerError?: any;
 }) {
-
-  console.log("container", containers)
 
   // Memoize the data calculation to prevent unnecessary re-computations
   const { overflowing, full, normal, empty } = useMemo(() => {
@@ -36,19 +38,19 @@ export default function DoughnutChart({
     let normalCount = 0;
     let emptyCount = 0;
 
-    if (containers) {
+    if (containers && containers?.length > 0) {
       containers.forEach((container) => {
-        switch (container.status) {
-          case 'Overflowing':
+        switch (container.fill_status) {
+          case "OVERFLOWING":
             overflowingCount++;
             break;
-          case 'Full':
+          case "FULL":
             fullCount++;
             break;
-          case 'Normal':
+          case "NORMAL":
             normalCount++;
             break;
-          case 'Empty':
+          case "EMPTY":
             emptyCount++;
             break;
           default:
@@ -57,8 +59,18 @@ export default function DoughnutChart({
       });
     }
 
-    return { overflowing: overflowingCount, full: fullCount, normal: normalCount, empty: emptyCount };
+    return {
+      overflowing: overflowingCount,
+      full: fullCount,
+      normal: normalCount,
+      empty: emptyCount,
+    };
   }, [containers]);
+
+
+  console.log("container in pie", containers);
+  console.log("containerLoading", containerLoading);
+  console.log("containerError", containerError);
 
   const options = {
     maintainAspectRatio: false,
@@ -77,26 +89,26 @@ export default function DoughnutChart({
 
   const data = {
     labels: [
-      `Overflowing (${overflowing})`, 
-      `Full (${full})`, 
-      `Normal (${normal})`, 
-      `Empty (${empty})`
+      `Overflowing (${overflowing})`,
+      `Full (${full})`,
+      `Normal (${normal})`,
+      `Empty (${empty})`,
     ],
     datasets: [
       {
         label: "Expenses",
-        data: [overflowing,full,normal,empty],
+        data: [overflowing, full, normal, empty],
         backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",  // Red for Overflowing
-          "rgba(255, 206, 86, 0.2)",  // Dark Yellow for Full
-          "rgba(75, 192, 192, 0.2)",  // Green for Normal
-          "rgba(54, 162, 235, 0.2)",  // Blue for Empty
+          "rgba(255, 99, 132, 0.2)", // Red for Overflowing
+          "rgba(255, 206, 86, 0.2)", // Dark Yellow for Full
+          "rgba(75, 192, 192, 0.2)", // Green for Normal
+          "rgba(54, 162, 235, 0.2)", // Blue for Empty
         ],
         borderColor: [
-          "rgba(255, 99, 132, 1)",    // Red for Overflowing
-          "rgba(255, 206, 86, 1)",    // Dark Yellow for Full
-          "rgba(75, 192, 192, 1)",    // Green for Normal
-          "rgba(54, 162, 235, 1)",    // Blue for Empty
+          "rgba(255, 99, 132, 1)", // Red for Overflowing
+          "rgba(255, 206, 86, 1)", // Dark Yellow for Full
+          "rgba(75, 192, 192, 1)", // Green for Normal
+          "rgba(54, 162, 235, 1)", // Blue for Empty
         ],
         borderWidth: 1,
       },
@@ -104,16 +116,34 @@ export default function DoughnutChart({
   };
   return (
     <Box sx={Container}>
-      <Box sx={headingContainer}>
-        <Typography sx={headingStyle}>{text}</Typography>
-        {editMode && (
-        
-        <DeleteIcon onClick = {onDelete} sx = {{cursor: 'pointer', color: 'gray'}}/>
+      {containerLoading ? (
+        <>
+          <Skeleton variant="rounded" width={"50%"} height={20} />
+          <Skeleton variant="rounded" width={"90%"} height={"80%"} />
+        </>
+      ): (
+        containerError ? (
+          <>
+            <ErrorOutlinedIcon sx = {{color: '#990000', width: '50%', height: '50%'}}/>
+            <Typography variant = "h6" sx = {{color: '#990000', textAlign: 'center'}}>Error displaying container information</Typography>
+          
+          </>
+        ) : (
+          <>
+          <Box sx={headingContainer}>
+            <Typography sx={headingStyle}>{text}</Typography>
+            {editMode && (
+            <DeleteIcon onClick = {onDelete} sx = {{cursor: 'pointer', color: 'gray'}}/>
+          )}
+          </Box>
+          <Box sx={grahContainer}>
+            <Doughnut data={data} options={options} />
+          </Box>
+          </>
+        )
       )}
-      </Box>
-      <Box sx={grahContainer}>
-        <Doughnut data={data} options={options} />
-      </Box>
+      
+
     </Box>
   );
 }

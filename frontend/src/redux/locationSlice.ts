@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 interface LocationObj {
+    id: string;
     Position: [number, number];
     Name: string;
 }
@@ -13,8 +14,9 @@ interface LocationState {
 
 const initialState: LocationState = {
     currentLocation: {
-        Position: [31.5497, 74.3436], // Coordinates for Lahore
-        Name: 'Lahore'
+        id: '',
+        Position: [31.5497, 74.3436],  // Empty array for initial Position
+        Name: 'Default Location'
     }
 };
 
@@ -25,12 +27,12 @@ const locationSlice = createSlice({
         setLocation : (state, action: PayloadAction<LocationState>) =>{
             state.currentLocation = action.payload.currentLocation;
         },
-        clearLocation: (state) => {
+        setDefault: (state) => {
             state.currentLocation = initialState.currentLocation;
         }
     }
 })
 
-export const {setLocation, clearLocation} = locationSlice.actions;
+export const {setLocation, setDefault} = locationSlice.actions;
 
 export default locationSlice.reducer;

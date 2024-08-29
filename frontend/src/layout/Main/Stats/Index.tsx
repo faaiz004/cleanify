@@ -99,6 +99,8 @@ interface ChartProps {
   containers?: ContainerType[];
   fleetUsageData?: any;
   fleetStatusData?:any;
+  containerLoading?: boolean;
+  containerError?: any;
 }
 
 interface Chart {
@@ -109,6 +111,8 @@ interface Chart {
 
 interface StatsProps {
   containers: ContainerType[];
+  containerLoading: boolean;
+  containerError: any;
 }
 
 const getChartComponent = (chart: Chart): React.ReactNode => {
@@ -129,7 +133,7 @@ const getChartComponent = (chart: Chart): React.ReactNode => {
   }
 };
 
-const Stats: React.FC<StatsProps> = ({ containers }) => {
+const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerError }) => {
   const [editMode, setEditMode] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
@@ -158,7 +162,7 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
     {
       id: "pie",
       show: true,
-      componentProps: { text: "Bins", editMode: editMode, containers: containers },
+      componentProps: { text: "Bins", editMode: editMode, containers: containers, containerLoading: containerLoading, containerError: containerError },
     },
     {
       id: "line2",
@@ -257,6 +261,8 @@ const Stats: React.FC<StatsProps> = ({ containers }) => {
               componentProps: {
                 ...chart.componentProps,
                 containers: containers, // Update the containers prop
+                containerLoading: containerLoading,
+                containerError: containerError,
               },
             }
           : chart // Return the chart unchanged if it's not the pie chart

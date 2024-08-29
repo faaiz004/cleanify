@@ -33,16 +33,17 @@ import StatsMiddleware from '../../layout/Main/StatsMiddleWare/Index';
 import { clearUser } from '../../redux/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { containers as initialContainers } from './constants';
-import { ContainerType } from './constants';
 import ControlledOpenSelect from '../../components/Select/Index';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@mui/material';
-
+import { getLocation } from '../../services/Location/Index';
+import { getContainers } from '../../services/Container/Index';
 
 export interface LocationObj {
-  City: string;
-  Position: [number,number];
+  center: string;
+  id: string;
+  name: string;
+  radius: Number;
 }
 
 const drawerWidth = 300;
@@ -122,22 +123,13 @@ export default function MainBody() {
     } 
   }
 
-  const fetchLocations = async (): Promise<LocationObj[]> => {
-    // Simulate an API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            City: 'Lahore',
-            Position: [31.5497, 74.3436], // Coordinates for Lahore
-          },
-          {
-            City: 'Islamabad',
-            Position: [33.6844, 73.0479], // Coordinates for Islamabad
-          },
-        ]);
-      }, 1000); // Simulate a network delay
-    });
+  const fetchLocations = async (): Promise<any> => {
+    try {
+      const locations = await getLocation();
+      return locations.data;
+    } catch (error) {
+      throw error;
+    }
   };
 
 
@@ -148,17 +140,20 @@ export default function MainBody() {
     staleTime: Infinity, // Prevents refetching
    });
 
+
   // Get the current location from the store
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
 
 
    // simulating an API call to get the containers
-  const fetchContainers = async (): Promise<ContainerType[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(initialContainers.filter((item:ContainerType) => item.city == currentLocation.Name));
-      }, 1000);
-    });
+  const fetchContainers = async (): Promise<any> => {
+    try {
+      const containers = await getContainers(currentLocation.id);
+      return containers.data;
+    } catch (error) {
+      console.log("error in fetchContainers", error);
+      throw error;
+    }
   }
 
 
@@ -166,7 +161,7 @@ export default function MainBody() {
   const { data: container = [], isLoading: containerLoading, error: containerError } = useQuery({
     queryKey: ['containers',currentLocation],
     queryFn: () => fetchContainers(),
-    enabled: !!currentLocation
+    enabled: !!currentLocation,
   });
 
 
@@ -284,7 +279,7 @@ export default function MainBody() {
         <DrawerHeader />
         {/* Add your main content here */}
         <Box sx = {root}>
-          <StatsMiddleware renderStats = {showStats}  container = {container} />
+          <StatsMiddleware renderStats = {showStats}  container = {container} containerLoading = {containerLoading} containerError = {containerError} />
           <Map toggleStats={toggleStats} showStats = {showStats} containers={container}  />
         </Box>
       </Main>
