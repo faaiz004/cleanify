@@ -11,13 +11,13 @@ import {
 } from 'chart.js';
 import { Box, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { FleetUsage } from '../Stats/constants';
+import { FleetUsage } from '../constants';
 import {
   Container,
   grahContainer,
   headingContainer,
   headingStyle,
-} from '../Stats/Styles';
+} from '../Styles.tsx';
 
 Chartjs.register(
   CategoryScale,

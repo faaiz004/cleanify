@@ -7,9 +7,9 @@ import {
   root,
   row,
 } from "./Styles";
-import LineChart from "../Line/Index";
-import BarChart from "../Bar/Index";
-import PieChart from "../Pie/Index";
+import LineChart from "./Line/Index";
+import BarChart from "./Bar/Index";
+import PieChart from "./Pie/Index";
 import {
   Typography,
   Button,
@@ -45,7 +45,7 @@ import AddCardOverlay from "../../../components/AddCardOverlay/Index";
 import { ContainerType } from "../../../pages/Main/constants";
 import { fleetStatus, fleetUsageData } from "./constants";
 import { fleetStatusData } from "./constants";
-import DoughnutChartFleetData from "../fleetStatusDataPie/Index";
+import DoughnutChartFleetData from "./fleetStatusDataPie/Index.tsx";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 

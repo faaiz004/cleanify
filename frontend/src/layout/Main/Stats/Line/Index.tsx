@@ -15,7 +15,7 @@ import {
   grahContainer,
   headingContainer,
   headingStyle,
-} from "../Stats/Styles";
+} from "../Styles.tsx";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 Chartjs.register(

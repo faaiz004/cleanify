@@ -29,22 +29,10 @@ export default function MainBody() {
   const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
 
 
-   // simulating an API call to get the containers
-  const fetchContainers = async (): Promise<any> => {
-    try {
-      const containers = await getContainers(currentLocation.id);
-      return containers.data;
-    } catch (error) {
-      console.log("error in fetchContainers", error);
-      throw error;
-    }
-  }
-
-
   // Query for fetching containers
   const { data: container = [], isLoading: containerLoading, error: containerError } = useQuery({
     queryKey: ['containers',currentLocation],
-    queryFn: () => fetchContainers(),
+    queryFn: () => getContainers(currentLocation.id),
     enabled: !!currentLocation,
   });
 

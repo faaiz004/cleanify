@@ -5,10 +5,10 @@ import {
   grahContainer,
   headingContainer,
   headingStyle,
-} from "../Stats/Styles";
+} from "../Styles.tsx";
 import { Box, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { ContainerType } from "../../../pages/Main/constants";
+import { ContainerType } from "../../../../pages/Main/constants";
 import { useMemo } from "react";
 import { Skeleton } from "@mui/material";
 import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';

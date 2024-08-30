@@ -116,27 +116,13 @@ export default function SideBar() {
     } 
   }
 
-  const fetchLocations = async (): Promise<any> => {
-    try {
-      const locations = await getLocation();
-      return locations.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
 
    // Query for fetching locations
    const { data: allLocation = [], isLoading, error } = useQuery({
     queryKey: ['locations'],
-    queryFn: () => fetchLocations(),
+    queryFn: () => getLocation(),
     staleTime: Infinity, // Prevents refetching
    });
-
-
-
-
-
 
 
   return (
