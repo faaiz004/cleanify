@@ -33,10 +33,7 @@ const NavbarLayout: React.FC = () => {
 const SideBarLayout: React.FC = () => {
   return (
     <ProtectedRoute>
-      <>
         <SideBar />
-        <Outlet />
-      </>
     </ProtectedRoute>
   );
 }
@@ -89,7 +86,6 @@ export default function RouterComponent() {
             }
           />
         </Route>
-
       </Routes>
     </Router>
   );
