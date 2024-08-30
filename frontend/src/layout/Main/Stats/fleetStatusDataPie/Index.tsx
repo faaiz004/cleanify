@@ -5,7 +5,7 @@ import {
   grahContainer,
   headingContainer,
   headingStyle,
-} from "../Stats/Styles";
+} from "../Styles.tsx";
 import { Box, Typography } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useMemo } from "react";

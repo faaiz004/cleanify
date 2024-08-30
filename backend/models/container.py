@@ -23,4 +23,4 @@ class Container:
     status: str
     location: str
     # TODO: set this on the basis of the depth measurement
-    fill_status: str = lambda: random.choice(FillStatus._member_names_)
+    fill_status: str = random.choice(FillStatus._member_names_)
