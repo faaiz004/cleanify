@@ -11,10 +11,14 @@ from backend.models.area import *
 from backend.exception_types import *
 from backend.models.utils import *
 
+from flask_socketio import SocketIO,emit
+
+
 import random
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app,cors_allowed_origins="*")
 
 @app.route('/', methods=['GET'])
 def base():
@@ -212,3 +216,39 @@ def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
         status_code=200,
         data=v_list
     ).__dict__
+
+uid_socket_store = {}
+
+@socketio.on('connect')
+def handle_connect(data):
+    
+    uow = UnitOfWork()
+    
+    # Check if user exists
+    try:
+        u = uow.users.get(data["user_id"])
+        uow.close()
+    except UowCloseRaiseCustom:
+        uow.close()
+        ConnectionRefusedError("UserDoesNotExist", "User does not exist")
+    
+    # Check if user's session already exists
+    if u.id in uid_socket_store:
+        sid = uid_socket_store[u.id]
+    else:
+        sid = request.sid
+        uid_socket_store[u.id] = sid
+    
+    emit('connected', {'message': 'Connected', 'sid': sid})
+
+@app.route('/ping-location', methods=['POST'])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
+@validate_post_payload(params=["vehicle_id", "location"])
+def ping_location(uow:UnitOfWork, req):
+    
+    Location(req["location"]).validate()
+    
+    v = uow.vehicles.get(req["vehicle_id"])
+    v.location = req["location"]
+
+    emit({'vehicle_id': v.id, 'location': v.location}, event='location-pinged',  to=uid_socket_store[v.user_id])
