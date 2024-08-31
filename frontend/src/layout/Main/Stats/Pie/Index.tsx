@@ -68,9 +68,9 @@ export default function DoughnutChart({
   }, [containers]);
 
 
-  console.log("container in pie", containers);
-  console.log("containerLoading", containerLoading);
-  console.log("containerError", containerError);
+  // console.log("container in pie", containers);
+  // console.log("containerLoading", containerLoading);
+  // console.log("containerError", containerError);
 
   const options = {
     maintainAspectRatio: false,

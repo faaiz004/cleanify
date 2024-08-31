@@ -140,7 +140,7 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
 
   const currentCity = useSelector((state: RootState) => state.location.currentLocation.Name);
     // fleetUsageData
-    console.log("currentCity", currentCity);
+    // console.log("currentCity", currentCity);
     const filteredFleetUsageData = useMemo(() => {
       if(currentCity === "Default Location") {
         return fleetUsageData;

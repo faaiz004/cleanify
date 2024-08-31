@@ -77,7 +77,7 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
   containerError,
 }) => {
 
-  console.log('container error in map', containerError);
+  // console.log('container error in map', containerError);
 
 
   const mapRef = useRef(null);
