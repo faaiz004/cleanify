@@ -241,6 +241,7 @@ def handle_connect(data):
     
     emit('connected', {'message': 'Connected', 'sid': sid})
 
+# curl -X POST -d '{"vehicle_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)"}' http://127.0.0.1:5000/ping-location
 @app.route('/ping-location', methods=['POST'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
 @validate_post_payload(params=["vehicle_id", "location"])
