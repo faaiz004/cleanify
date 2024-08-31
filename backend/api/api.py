@@ -219,14 +219,16 @@ def get_all_vehicles_of_a_user_filtered_by_area(uow: UnitOfWork, req):
 
 uid_socket_store = {}
 
+
+
 @socketio.on('connect')
-def handle_connect(data):
+def handle_connect():
     
     uow = UnitOfWork()
     
     # Check if user exists
     try:
-        u = uow.users.get(data["user_id"])
+        u = uow.users.get(request.args.get("user_id"))
         uow.close()
     except UowCloseRaiseCustom:
         uow.close()
@@ -240,6 +242,7 @@ def handle_connect(data):
         uid_socket_store[u.id] = sid
     
     emit('connected', {'message': 'Connected', 'sid': sid})
+    print("uid_socket_store", uid_socket_store)
 
 # curl -X POST -d '{"vehicle_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)"}' http://127.0.0.1:5000/ping-location
 @app.route('/ping-location', methods=['POST'])
