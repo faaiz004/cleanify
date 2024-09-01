@@ -1,21 +1,30 @@
 export interface Coordinates {
-    lat: number;
-    lon: number;
-  }
-  
+  lat: number;
+  lon: number;
+}
 
-  
-  export type ContainerStatus =  'OVERFLOWING' | 'FULL' | 'NORMAL' | 'EMPTY';
-  
-  export interface ContainerType {
-    id: string;
-    location: string;
-    fill_status: ContainerStatus;
-    depth:string;
-    updatedAt: string;
-    status: string;
 
-  }
+
+export type ContainerStatus = 'OVERFLOWING' | 'FULL' | 'NORMAL' | 'EMPTY';
+
+export interface ContainerType {
+  id: string;
+  location: string;
+  fill_status: ContainerStatus;
+  depth: string;
+  updatedAt: string;
+  status: string;
+
+}
+
+export type VehicleStatus = 'WORKING' | 'NOT_WORKING';
+
+export interface VehicleType {
+  id: string;
+  location: string;
+  status: VehicleStatus;
+  user_id: string;
+}
 // const containers: ContainerType[] = [
 //     // Lahore
 //     {

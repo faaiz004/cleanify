@@ -1,21 +1,20 @@
-import React, { useRef, useMemo, useEffect } from "react";
-import { MapContainer, Marker, Popup, TileLayer  } from "react-leaflet";
+import React, { useRef, useMemo } from "react";
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ContainerType } from "../../../pages/Main/constants";
-import MarkerClusterGroup from 'react-leaflet-cluster'
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
 import { stringToNumberTuple } from "../../../components/Select/Index";
-import { Vehicle, initialVehicles } from "./constants";
 import Status from "../../../components/Status/Index";
 import CreateCustomIcon from "./CreateCustomIcon/Index";
 import FlyToAPos from "./FlyToAPos/Index";
-
-
-
+import { VehicleType } from "../../../pages/Main/constants";
 
 // Define the color mappings
-const colorMap: { [key in 'OVERFLOWING' | 'FULL' | 'NORMAL' | 'EMPTY' ]: string } = {
+const colorMap: {
+  [key in "OVERFLOWING" | "FULL" | "NORMAL" | "EMPTY"]: string;
+} = {
   OVERFLOWING: "red",
   FULL: "orange",
   NORMAL: "green",
@@ -69,63 +68,48 @@ const resizeMap = (mapRef: any) => {
   }
 };
 
-
-const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: ContainerType[], containerError: any }> = ({
-  toggleStats,
-  showStats,
-  containers,
-  containerError,
-}) => {
-
+const Map: React.FC<{
+  toggleStats: () => void;
+  showStats: boolean;
+  containers: ContainerType[];
+  containerError: any;
+  vehicles: VehicleType[];
+  vehicleError: any;
+}> = ({ toggleStats, showStats, containers, containerError, vehicles, vehicleError }) => {
   // console.log('container error in map', containerError);
 
-
   const mapRef = useRef(null);
-  const currentLocation = useSelector((state: RootState) => state.location.currentLocation);
+  const currentLocation = useSelector(
+    (state: RootState) => state.location.currentLocation
+  );
   const markers = useMemo(() => {
-    return containers?.length > 0 ? 
-    containers?.map((container) => ({
-      geocode: stringToNumberTuple(container.location) as [number, number],
-      popUp: `${container.fill_status}`,
-      icon: CreateCustomIcon(colorMap[container.fill_status]),
-    })): 
-    [];
+    return containers?.length > 0
+      ? containers?.map((container) => ({
+          geocode: stringToNumberTuple(container.location) as [number, number],
+          popUp: `${container.fill_status}`,
+          icon: CreateCustomIcon(colorMap[container.fill_status]),
+        }))
+      : [];
   }, [containers]);
 
-  const [vehicles, setVehicles] = React.useState<Vehicle[]>(initialVehicles);
+
+
+  // const [vehicles, setVehicles] = React.useState<Vehicle[]>(initialVehicles);
 
   const vehicleMarkers = useMemo(() => {
     return vehicles.map((vehicle) => ({
-      position: vehicle.position,
+      position: stringToNumberTuple(vehicle.location) as [number, number],
       id: vehicle.id,
       icon: CreateCustomIcon("yellow"), // Yellow for vehicles
     }));
   }, [vehicles]);
 
-  // Function to update vehicle positions
-  const updateVehiclePositions = (newPositions: Vehicle[]) => {
-    setVehicles(newPositions);
-  };
-
-  // Simulate vehicle position updates (Replace with your real-time data fetching logic)
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const newVehiclePositions: Vehicle[] = vehicles.map((vehicle) => ({
-        ...vehicle,
-        position: [
-          vehicle.position[0] + (Math.random() - 0.5) * 0.01, // Randomize position slightly
-          vehicle.position[1] + (Math.random() - 0.5) * 0.01,
-        ],
-      }));
-      updateVehiclePositions(newVehiclePositions);
-    }, 5000); // Update every 5 seconds
-
-    return () => clearInterval(intervalId);
-  }, [vehicles]);
 
   return (
     <MapContainer
-      center={currentLocation.Position as [number, number] || [31.5497, 74.3436]}
+      center={
+        (currentLocation.Position as [number, number]) || [31.5497, 74.3436]
+      }
       zoom={13}
       style={{ height: "100%", width: "100%", zIndex: 0, position: "relative" }}
       ref={mapRef}
@@ -138,11 +122,12 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
       />
       {/* Marker Cluster Group for Containers */}
       <MarkerClusterGroup>
-        {markers?.length > 0 && markers?.map((marker, index) => (
-          <Marker key={index} position={marker.geocode} icon={marker.icon}>
-            <Popup>{marker.popUp}</Popup>
-          </Marker>
-        ))}
+        {markers?.length > 0 &&
+          markers?.map((marker, index) => (
+            <Marker key={index} position={marker.geocode} icon={marker.icon}>
+              <Popup>{marker.popUp}</Popup>
+            </Marker>
+          ))}
       </MarkerClusterGroup>
 
       {/* Marker Cluster Group for Vehicles */}
@@ -157,9 +142,9 @@ const Map: React.FC<{ toggleStats: () => void; showStats: boolean, containers: C
       {/* Toggle button here */}
       <ToggleEditButton showEdits={showStats} toggleEdit={toggleStats} />
       {/* Status component */}
-      <Status  error={containerError} />
+      <Status containerError={containerError} vehiclesError={vehicleError} />
       {/* Fly to a location */}
-      <FlyToAPos/>
+      <FlyToAPos />
     </MapContainer>
   );
 };

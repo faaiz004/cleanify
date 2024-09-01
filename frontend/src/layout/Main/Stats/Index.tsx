@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
-import {
-  dataHeader,
-  editTextStyle,
-  headingStyle,
-  root,
-  row,
-} from "./Styles";
+import { dataHeader, editTextStyle, headingStyle, root, row } from "./Styles";
 import LineChart from "./Line/Index";
 import BarChart from "./Bar/Index";
 import PieChart from "./Pie/Index";
@@ -43,11 +37,11 @@ import Tooltip from "@mui/material/Tooltip";
 import InfoIcon from "@mui/icons-material/Info";
 import AddCardOverlay from "../../../components/AddCardOverlay/Index";
 import { ContainerType } from "../../../pages/Main/constants";
-import { fleetStatus, fleetUsageData } from "./constants";
-import { fleetStatusData } from "./constants";
+import {  fleetUsageData } from "./constants";
 import DoughnutChartFleetData from "./fleetStatusDataPie/Index.tsx";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { VehicleType } from "../../../pages/Main/constants";
 
 // Memoize SortableItem to prevent unnecessary re-renders
 const SortableItem = React.memo(function SortableItem({
@@ -98,25 +92,29 @@ interface ChartProps {
   onDelete?: () => void;
   containers?: ContainerType[];
   fleetUsageData?: any;
-  fleetStatusData?:any;
+  fleetStatusData?: any;
   containerLoading?: boolean;
   containerError?: any;
+  fleetStatusLoading?: boolean;
+  fleetStatusError?: any;
 }
 
 interface Chart {
   id: string;
   show: boolean;
-  componentProps: ChartProps
+  componentProps: ChartProps;
 }
 
 interface StatsProps {
   containers: ContainerType[];
   containerLoading: boolean;
   containerError: any;
+  vehicles: VehicleType[];
+  vehicleLoading: boolean;
+  vehicleError: any;
 }
 
 const getChartComponent = (chart: Chart): React.ReactNode => {
-
   const { id, componentProps } = chart;
 
   switch (id) {
@@ -125,7 +123,7 @@ const getChartComponent = (chart: Chart): React.ReactNode => {
     case "line2":
       return <LineChart {...componentProps} />;
     case "pie1":
-      return <DoughnutChartFleetData {...componentProps}/>;
+      return <DoughnutChartFleetData {...componentProps} />;
     case "pie":
       return <PieChart {...componentProps} />;
     default:
@@ -133,43 +131,58 @@ const getChartComponent = (chart: Chart): React.ReactNode => {
   }
 };
 
-const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerError }) => {
+const Stats: React.FC<StatsProps> = ({
+  containers,
+  containerLoading,
+  containerError,
+  vehicles : fleetStatusData,
+  vehicleLoading,
+  vehicleError,
+}) => {
   const [editMode, setEditMode] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
 
-  const currentCity = useSelector((state: RootState) => state.location.currentLocation.Name);
-    // fleetUsageData
-    // console.log("currentCity", currentCity);
-    const filteredFleetUsageData = useMemo(() => {
-      if(currentCity === "Default Location") {
-        return fleetUsageData;
-      }
-      return fleetUsageData.filter((data) => data.city === currentCity);
-    }, [currentCity]);
+  const currentCity = useSelector(
+    (state: RootState) => state.location.currentLocation.Name
+  );
+  // fleetUsageData
+  // console.log("currentCity", currentCity);
+  const filteredFleetUsageData = useMemo(() => {
+    if (currentCity === "Default Location") {
+      return fleetUsageData;
+    }
+    return fleetUsageData.filter((data) => data.city === currentCity);
+  }, [currentCity]);
 
-    const filteredFleetStatusData = useMemo(() => {
-      if(currentCity === "Default Location") {
-        return fleetStatusData;
-      }
-      return fleetStatusData.filter((data:fleetStatus) => data.location == currentCity);
-    }, [currentCity]);
 
   const [charts, setCharts] = useState<Chart[]>([
     {
       id: "bar",
       show: true,
-      componentProps: { text: "Fleet Usage", editMode: editMode, fleetUsageData:filteredFleetUsageData },
+      componentProps: {
+        text: "Fleet Usage",
+        editMode: editMode,
+        fleetUsageData: filteredFleetUsageData,
+      },
     },
     {
       id: "pie1",
       show: true,
-      componentProps: { text: "Fleet Status", editMode: editMode , fleetStatusData: filteredFleetStatusData },
+      componentProps: { text: "Fleet Status", editMode: editMode, fleetStatusData: fleetStatusData, 
+        fleetStatusLoading: vehicleLoading, fleetStatusError: vehicleError 
+       },
     },
     {
       id: "pie",
       show: true,
-      componentProps: { text: "Bins", editMode: editMode, containers: containers, containerLoading: containerLoading, containerError: containerError },
+      componentProps: {
+        text: "Bins",
+        editMode: editMode,
+        containers: containers,
+        containerLoading: containerLoading,
+        containerError: containerError,
+      },
     },
     {
       id: "line2",
@@ -177,8 +190,6 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
       componentProps: { text: "example", editMode: editMode },
     },
   ]);
-
-
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -258,59 +269,60 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
     );
   }, [editMode, handleDelete]); // Add handleDelete to the dependency array
 
-
   useEffect(() => {
     setCharts((prevCharts) =>
-      prevCharts.map((chart) =>
-        chart.id === "pie" // Only update the pie chart
-          ? {
-              ...chart,
-              componentProps: {
-                ...chart.componentProps,
-                containers: containers, // Update the containers prop
-                containerLoading: containerLoading,
-                containerError: containerError,
-              },
-            }
-          : chart // Return the chart unchanged if it's not the pie chart
+      prevCharts.map(
+        (chart) =>
+          chart.id === "pie" // Only update the pie chart
+            ? {
+                ...chart,
+                componentProps: {
+                  ...chart.componentProps,
+                  containers: containers, // Update the containers prop
+                  containerLoading: containerLoading,
+                  containerError: containerError,
+                },
+              }
+            : chart // Return the chart unchanged if it's not the pie chart
       )
     );
   }, [containers]); // This useEffect will run only when containers change
 
   useEffect(() => {
     setCharts((prevCharts) =>
-      prevCharts.map((chart) =>
-        chart.id === "bar" // Only update the pie chart
-          ? {
-              ...chart,
-              componentProps: {
-                ...chart.componentProps,
-                fleetUsageData:filteredFleetUsageData
-              },
-            }
-          : chart // Return the chart unchanged if it's not the pie chart
+      prevCharts.map(
+        (chart) =>
+          chart.id === "bar" // Only update the pie chart
+            ? {
+                ...chart,
+                componentProps: {
+                  ...chart.componentProps,
+                  fleetUsageData: filteredFleetUsageData,
+                },
+              }
+            : chart // Return the chart unchanged if it's not the pie chart
       )
     );
   }, [filteredFleetUsageData]); // This useEffect will run only when containers change
 
   useEffect(() => {
     setCharts((prevCharts) =>
-      prevCharts.map((chart) =>
-        chart.id === "pie1" // Only update the pie chart
-          ? {
-              ...chart,
-              componentProps: {
-                ...chart.componentProps,
-                fleetStatusData: filteredFleetStatusData
-              },
-            }
-          : chart // Return the chart unchanged if it's not the pie chart
+      prevCharts.map(
+        (chart) =>
+          chart.id === "pie1" // Only update the pie chart
+            ? {
+                ...chart,
+                componentProps: {
+                  ...chart.componentProps,
+                  fleetStatusData: fleetStatusData,
+                  fleetStatusLoading: vehicleLoading,
+                  fleetStatusError: vehicleError,
+                },
+              }
+            : chart // Return the chart unchanged if it's not the pie chart
       )
     );
-  }, [filteredFleetStatusData]); // This useEffect will run only when containers change
-
-  
-  
+  }, [fleetStatusData]); // This useEffect will run only when containers change
 
   return (
     <Box sx={root}>
@@ -344,7 +356,7 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
                 </SortableItem>
               ))}
             {editMode && (
-              <Box sx = {{height: '100%', width: '100%'}}> 
+              <Box sx={{ height: "100%", width: "100%" }}>
                 {charts
                   .slice(0, 2)
                   .filter((chart) => !chart.show)
@@ -367,7 +379,7 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
                 </SortableItem>
               ))}
             {editMode && (
-              <Box sx = {{height: '100%', width: '100%'}}>
+              <Box sx={{ height: "100%", width: "100%" }}>
                 {charts
                   .slice(2)
                   .filter((chart) => !chart.show)
@@ -444,6 +456,6 @@ const Stats: React.FC<StatsProps> = ({ containers, containerLoading, containerEr
       </Dialog>
     </Box>
   );
-}
+};
 
 export default Stats;
