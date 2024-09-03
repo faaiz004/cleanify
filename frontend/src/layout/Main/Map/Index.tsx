@@ -15,10 +15,10 @@ import { VehicleType } from "../../../pages/Main/constants";
 const colorMap: {
   [key in "OVERFLOWING" | "FULL" | "NORMAL" | "EMPTY"]: string;
 } = {
-  OVERFLOWING: "red",
-  FULL: "orange",
-  NORMAL: "green",
-  EMPTY: "blue",
+  OVERFLOWING: "rgba(255, 99, 132, 0.8)",
+  FULL: "rgba(255, 206, 86, 0.8)",
+  NORMAL: "rgba(75, 192, 192, 0.8)",
+  EMPTY: "rgba(54, 162, 235, 0.8)",
 };
 
 const ToggleEditButton: React.FC<{
@@ -87,7 +87,7 @@ const Map: React.FC<{
       ? containers?.map((container) => ({
           geocode: stringToNumberTuple(container.location) as [number, number],
           popUp: `${container.fill_status}`,
-          icon: CreateCustomIcon(colorMap[container.fill_status]),
+          icon: CreateCustomIcon(colorMap[container.fill_status], [42,42], true),
         }))
       : [];
   }, [containers]);
@@ -100,7 +100,7 @@ const Map: React.FC<{
     return vehicles.map((vehicle) => ({
       position: stringToNumberTuple(vehicle.location) as [number, number],
       id: vehicle.id,
-      icon: CreateCustomIcon("yellow"), // Yellow for vehicles
+      icon: CreateCustomIcon("rgba(173, 216, 230, 0.8)", [42,42],false), // Yellow for vehicles
     }));
   }, [vehicles]);
 

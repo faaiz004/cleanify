@@ -20,13 +20,13 @@ export interface LocationObj {
 
 export default function MainBody() {
   const socketUrl = "http://127.0.0.1:5000";
-  const user_id = useSelector((state: RootState) => state.user.access_token);
-  console.log("User ID:", user_id);
-  const { lastMessage } = useSocket({ socketUrl, user_id });
+  const user_id = useSelector((state: RootState) => state?.user?.access_token);
+  console.log("User ID in MainBody:", user_id);
+  const { newLocationQueue, dequeueLocation } = useSocket({ socketUrl, user_id });
 
   React.useEffect(() => {
-    console.log("Last message:", lastMessage);
-  }, [lastMessage]);
+    console.log("New Location Queue:", newLocationQueue);
+  }, [newLocationQueue]);
 
   const [showStats, setShowStats] = React.useState<boolean>(true);
 
@@ -50,10 +50,12 @@ export default function MainBody() {
     enabled: !!currentLocation,
   });
 
+  console.log("Container Error in MainBody:", containerError);
+
   // Query for fetching vehicles
   // use react-query to fetch the data
   const {
-    data: vehicle = [],
+    data: vehicleApiData = [],
     isLoading: vehicleLoading,
     error: vehicleError,
   } = useQuery<VehicleType[]>({
@@ -61,6 +63,41 @@ export default function MainBody() {
     queryFn: () => getVehicles(user_id, currentLocation.id),
     enabled: !!currentLocation,
   });
+
+  const [vehicle, setVehicle] = React.useState<VehicleType[]>(vehicleApiData || []);
+
+  // Update the vehicle state when the data changes
+  React.useEffect(() => {
+    if(!vehicleError || !vehicleLoading){
+      setVehicle(vehicleApiData || []);
+    }
+  }, [vehicleApiData]);
+
+  // update the vehicle state when new location is received from the socket
+  React.useEffect(() => {
+    if (newLocationQueue.length > 0) {
+      const newLocation = newLocationQueue[0]; // Peek at the first item in the queue
+      setVehicle((prevVehicle) => {
+        const newVehicle = prevVehicle.map((vehicle: VehicleType) => {
+          if (vehicle.id === newLocation.vehicle_id) {
+            return {
+              ...vehicle,
+              location: newLocation.location,
+            };
+          }
+          return vehicle;
+        });
+        return newVehicle;
+      });
+      dequeueLocation(); // Remove the first item from the queue
+    }
+  }, [newLocationQueue]);
+
+  React.useEffect(() => {
+    console.log("Vehicle in Main Body:", vehicle);
+  }, [vehicle]);
+
+  
   
   return (
     <Box sx={root}>

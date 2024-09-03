@@ -30,7 +30,7 @@ export default function DoughnutChartFleetData({
   fleetStatusLoading?: boolean;
   fleetStatusError?: any;
 }) {
-  console.log("fleetStatusData in DoughnutChartFleetData: ", fleetStatusData);
+  // console.log("fleetStatusData in DoughnutChartFleetData: ", fleetStatusData);
 
   // Memoize the data calculation to prevent unnecessary re-computations
   const { working, unavailable, offWork } = useMemo(() => {

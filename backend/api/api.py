@@ -234,25 +234,52 @@ def handle_connect():
         uow.close()
         ConnectionRefusedError("UserDoesNotExist", "User does not exist")
     
-    # Check if user's session already exists
-    if u.id in uid_socket_store:
-        sid = uid_socket_store[u.id]
-    else:
-        sid = request.sid
-        uid_socket_store[u.id] = sid
+    # # Check if user's session already exists
+    # if u.id in uid_socket_store:
+    #     print("",end="\n\n")
+    #     print("user already connected")
+    #     print("",end="\n\n")
+    #     sid = uid_socket_store[u.id]
+    # else:
+    #     sid = request.sid
+    #     print("",end="\n\n")
+    #     print("user connected for the first time")
+    #     print("",end="\n\n")
+    #     uid_socket_store[u.id] = sid
     
+    # Update the session with the latest socket.id
+    sid = request.sid
+    uid_socket_store[u.id] = sid
+
+
     emit('connected', {'message': 'Connected', 'sid': sid})
+    print("",end="\n\n")
     print("uid_socket_store", uid_socket_store)
+    print("Server-assigned SID:", sid)
+    print("User ID:", u.id, "Stored SID:", uid_socket_store[u.id])
+    print("",end="\n\n")
 
 # curl -X POST -d '{"vehicle_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)"}' http://127.0.0.1:5000/ping-location
 @app.route('/ping-location', methods=['POST'])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
 @validate_post_payload(params=["vehicle_id", "location"])
 def ping_location(uow:UnitOfWork, req):
+    print("uid_socket_store", uid_socket_store)
     
     Location(req["location"]).validate()
     
     v = uow.vehicles.get(req["vehicle_id"])
     v.location = req["location"]
 
-    emit({'vehicle_id': v.id, 'location': v.location}, event='location-pinged',  to=uid_socket_store[v.user_id])
+    print('',end='\n\n')
+
+    print("location pinged to user", v.user_id, " via socket id", uid_socket_store[v.user_id])
+
+    socketio.emit('location-pinged', {'vehicle_id': v.id, 'location': v.location}, to=uid_socket_store[v.user_id])
+
+    print('',end='\n\n')
+
+    return Response(
+        message="Location Pinged Successfully",
+        status_code=200,
+    ).__dict__
