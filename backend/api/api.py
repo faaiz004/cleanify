@@ -7,6 +7,7 @@ from backend.api.utils import *
 from backend.models.user import *
 from backend.models.container import *
 from backend.models.vehicle import *
+from backend.models.point import *
 from backend.models.area import *
 from backend.exception_types import *
 from backend.models.utils import *
@@ -282,4 +283,49 @@ def ping_location(uow:UnitOfWork, req):
     return Response(
         message="Location Pinged Successfully",
         status_code=200,
+    ).__dict__
+
+# point cruds
+
+#curl -X POST -d '{"user_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)", "name":"Kalma chowk", "type":"STARTING"}' http://127.0.0.1:5000/create-point
+@app.route("/create-point", methods=["POST"])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
+@validate_post_payload(params=["user_id", "location", "name", "type"])
+def create_point(uow: UnitOfWork, req):
+    
+    # check if user exists
+    uow.users.get(req["user_id"])
+
+    Location(req["location"]).validate()
+
+    p = Point(
+        id=str(uuid4()),
+        location=req["location"],
+        name=req["name"],
+        type=PointType[req["type"]].name,
+        user_id=req["user_id"]
+    )
+
+    uow.points.add(p)
+
+    return Response(
+        message="Point Created Successfully",
+        status_code=200,
+    ).__dict__
+
+# curl -X GET http://127.0.0.1:5000/get-all-points-of-a-user?user_id=2519d1fa-66aa-4869-86b8-d919acbf4b9c
+@app.route("/get-all-points-of-a-user", methods=["GET"])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
+@validate_get_payload(params=["user_id"])
+def get_all_points_of_a_user(uow: UnitOfWork, req):
+    
+    # check if user exists
+    uow.users.get(request.args.get("user_id"))
+
+    p_list = uow.points.get_all_of_user(user_id=request.args.get("user_id"))
+    
+    return Response(
+        message="All Points Returned",
+        status_code=200,
+        data=p_list
     ).__dict__

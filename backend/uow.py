@@ -4,6 +4,7 @@ from backend.repositories.user import UserRepository
 from backend.repositories.container import ContainerRepository
 from backend.repositories.vehicle import VehicleRepository
 from backend.repositories.area import AreaRepository
+from backend.repositories.point import PointRepository
 class UnitOfWork:
     
     def __init__(self):
@@ -27,6 +28,7 @@ class UnitOfWork:
         self.containers = ContainerRepository(self.connection)
         self.vehicles = VehicleRepository(self.connection)
         self.areas = AreaRepository(self.connection)
+        self.points = PointRepository(self.connection)
 
     def commit_close(self):
         self.connection.commit()
