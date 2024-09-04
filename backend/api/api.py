@@ -11,6 +11,7 @@ from backend.models.point import *
 from backend.models.area import *
 from backend.exception_types import *
 from backend.models.utils import *
+from backend.models.algo import get_optimal_routes
 
 from flask_socketio import SocketIO,emit
 
@@ -287,7 +288,7 @@ def ping_location(uow:UnitOfWork, req):
 
 # point cruds
 
-#curl -X POST -d '{"user_id":"2519d1fa-66aa-4869-86b8-d919acbf4b9c", "location":"(0,0)", "name":"Kalma chowk", "type":"STARTING"}' http://127.0.0.1:5000/create-point
+#curl -X POST -d '{"user_id":"45ebdcc4-f922-44e8-8bfb-0137616b2602", "location":"(0,0)", "name":"Kalma chowk", "type":"STARTING"}' http://127.0.0.1:5000/create-point
 @app.route("/create-point", methods=["POST"])
 @provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
 @validate_post_payload(params=["user_id", "location", "name", "type"])
@@ -328,4 +329,29 @@ def get_all_points_of_a_user(uow: UnitOfWork, req):
         message="All Points Returned",
         status_code=200,
         data=p_list
+    ).__dict__
+
+# curl -X POST -d '{"vehicle_ids":["5d4574c4-03d4-4d14-af10-f499fa0b7bf4"], "container_ids":["331bcc3b-5010-422e-a412-2bc2397383ca"], "dumping_point_id":"7fa28bd4-2737-453c-868e-93065bf6cf66"}' http://127.0.0.1:5000/get-optimal-routes
+@app.route("/get-optimal-routes", methods=["POST"])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
+@validate_post_payload(params=["vehicle_ids", "container_ids", "dumping_point_id"])
+def get_optimal_routes_api(uow: UnitOfWork, req):
+    #TODO: can be optimized by using get_all_of_user at the cost of neat invalid input handling
+    
+    vehicles = []
+    for vid in req["vehicle_ids"]:
+        vehicles.append(uow.vehicles.get(vid))
+
+    containers = []
+    for cid in req["container_ids"]:
+        containers.append(uow.containers.get(cid))
+
+    dumping_point = uow.points.get(req["dumping_point_id"])
+
+    routes = get_optimal_routes(vehicles, containers, dumping_point)
+
+    return Response(
+        message="Optimal Routes Returned",
+        status_code=200,
+        data=routes
     ).__dict__

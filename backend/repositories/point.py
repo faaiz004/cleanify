@@ -1,7 +1,7 @@
 from psycopg2.extras import DictCursor
 from backend.models.point import Point
 import typing as t
-
+from backend.exception_types import *
 class PointRepository:
     def __init__(self, connection):
         self.connection = connection
@@ -23,6 +23,9 @@ class PointRepository:
     def get(self, id: str) -> Point:
         self.cursor.execute(f"SELECT * FROM points WHERE id = '{id}'")
         point = self.cursor.fetchone()
+        if not point:
+            UowCloseRaiseCustom("PointNotFound", f"Point with id {id} not found")
+        
         return Point(**point)
         
     def get_all_of_user(self, user_id: str) -> t.List[Point]:

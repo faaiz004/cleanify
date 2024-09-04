@@ -1,6 +1,7 @@
 from psycopg2.extras import DictCursor
 from backend.models.vehicle import Vehicle
 import typing as t
+from backend.exception_types import *
 
 class VehicleRepository:
     def __init__(self, connection):
@@ -23,6 +24,8 @@ class VehicleRepository:
     def get(self, id: str) -> Vehicle:
         self.cursor.execute(f"SELECT * FROM vehicles WHERE id = '{id}'")
         vehicle = self.cursor.fetchone()
+        if not vehicle:
+            raise UowCloseRaiseCustom("VehicleNotFound", f"Vehicle with id {id} not found")
         return Vehicle(**vehicle)
     
     def get_all(self) -> t.List[Vehicle]:
