@@ -10,6 +10,7 @@ import Status from "../../../components/Status/Index";
 import CreateCustomIcon from "./CreateCustomIcon/Index";
 import FlyToAPos from "./FlyToAPos/Index";
 import { VehicleType } from "../../../pages/Main/constants";
+import createClusterCustomIcon from "./createCustomIconCluser/Index";
 
 // Define the color mappings
 const colorMap: {
@@ -120,18 +121,17 @@ const Map: React.FC<{
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {/* Marker Cluster Group for Containers */}
-      <MarkerClusterGroup>
+      {/* Marker Cluster Group for Containers and Vehicles */}
+      <MarkerClusterGroup
+        iconCreateFunction = {createClusterCustomIcon}
+      >
         {markers?.length > 0 &&
           markers?.map((marker, index) => (
             <Marker key={index} position={marker.geocode} icon={marker.icon}>
               <Popup>{marker.popUp}</Popup>
             </Marker>
           ))}
-      </MarkerClusterGroup>
 
-      {/* Marker Cluster Group for Vehicles */}
-      <MarkerClusterGroup>
         {vehicleMarkers.map((marker) => (
           <Marker key={marker.id} position={marker.position} icon={marker.icon}>
             <Popup>{marker.id}</Popup>
