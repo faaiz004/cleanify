@@ -356,7 +356,7 @@ const Stats: React.FC<StatsProps> = ({
                 </SortableItem>
               ))}
             {editMode && (
-              <Box sx={{ height: "100%", width: "100%", display: 'flex', flexDirection: 'row', gap:'20px' }}>
+              <>
                 {charts
                   .slice(0, 2)
                   .filter((chart) => !chart.show)
@@ -366,7 +366,7 @@ const Stats: React.FC<StatsProps> = ({
                       onAdd={handleOpenAddCardModal}
                     />
                   ))}
-              </Box>
+              </>
             )}
           </Box>
           <Box sx={row}>
@@ -379,7 +379,7 @@ const Stats: React.FC<StatsProps> = ({
                 </SortableItem>
               ))}
             {editMode && (
-              <Box sx={{ height: "100%", width: "100%",  display: 'flex', flexDirection: 'row', gap :'20px' }}>
+              <>
                 {charts
                   .slice(2)
                   .filter((chart) => !chart.show)
@@ -389,7 +389,7 @@ const Stats: React.FC<StatsProps> = ({
                       onAdd={handleOpenAddCardModal}
                     />
                   ))}
-              </Box>
+              </>
             )}
           </Box>
         </SortableContext>

@@ -41,6 +41,6 @@ def get_optimal_routes(
         )
         print(f"Container {i} added at {x},{y}")
     
-    solution:vroom.solution.solution.Solution = problem_instance.solve(exploration_level=5, nb_threads=4)
+    solution:vroom.solution.solution.Solution = problem_instance.solve(exploration_level=10, nb_threads=10)
 
     return solution.routes

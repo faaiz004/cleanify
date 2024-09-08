@@ -6,11 +6,7 @@ export const root: SxProps<Theme> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: {
-      sm: '180px',
-      md: '200px',
-      lg: '250px',
-    },
+    width: "100%",
     height: '100%',
     cursor: "pointer",
     transition: "background-color 0.3s",
