@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Box from "@mui/material/Box";
 import { dataHeader, editTextStyle, headingStyle, root, row } from "./Styles";
 import LineChart from "./Line/Index";
@@ -142,6 +142,7 @@ const Stats: React.FC<StatsProps> = ({
   const [editMode, setEditMode] = useState(false);
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
+  const tempChartStore = useRef<Chart[]>([]);
 
   const currentCity = useSelector(
     (state: RootState) => state.location.currentLocation.Name
@@ -209,7 +210,16 @@ const Stats: React.FC<StatsProps> = ({
   };
 
   const handleEditToggle = () => {
+
+    if(!editMode){
+      tempChartStore.current = [...charts];
+    }
+    else{
+      setCharts(tempChartStore.current);
+    }
+
     setEditMode(!editMode);
+    
   };
 
   const handleDelete = useCallback(
