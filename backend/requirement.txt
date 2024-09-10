@@ -4,3 +4,4 @@ python-dotenv
 flask_cors
 pyvroom
 flask_socketio
+requests
