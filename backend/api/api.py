@@ -12,9 +12,9 @@ from backend.models.area import *
 from backend.exception_types import *
 from backend.models.utils import *
 from backend.models.algo import get_optimal_routes
-
 from flask_socketio import SocketIO,emit
 
+import json
 
 import random
 
@@ -354,4 +354,48 @@ def get_optimal_routes_api(uow: UnitOfWork, req):
         message="Optimal Routes Returned",
         status_code=200,
         data=routes
+    ).__dict__
+
+# charts preferences
+# curl -X POST -H "Content-Type: application/json" -d '{"user_id":"45ebdcc4-f922-44e8-8bfb-0137616b2602", "preferences": {"charts": [{ "id": "bar", "position": 1, "show": true },{ "id": "pie1", "position": 2, "show": true },{ "id": "pie", "position": 3, "show": false },{ "id": "line2", "position": 4, "show": true }]}}' http://127.0.0.1:5000/upsert-chart-preferences
+@app.route("/upsert-charts-preferences", methods=["POST"])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=True)
+@validate_post_payload(params=["user_id", "preferences"])
+def upsert_chart_preferences(uow: UnitOfWork, req):
+    
+    u = uow.users.get(req["user_id"])
+    
+    uow.dict_cursor.execute("""
+    insert into charts_preferences (user_id, preferences) values (%(user_id)s, %(preferences)s)
+    on conflict (user_id) do update set preferences = excluded.preferences
+    """, {
+        "user_id": u.id,
+        "preferences": json.dumps(req["preferences"])
+    })
+
+    return Response(
+        message="Chart Preferences Updated",
+        status_code=200,
+    ).__dict__
+
+# curl -X GET http://127.0.0.1:5000/get-charts-preferences?user_id=45ebdcc4-f922-44e8-8bfb-0137616b2602
+@app.route("/get-charts-preferences", methods=["GET"])
+@provide_req_and_uow_and_handle_exceptions(happy_path_commit=False)
+@validate_get_payload(params=["user_id"])
+def get_chart_preferences(uow: UnitOfWork, req):
+    
+    u = uow.users.get(request.args.get("user_id"))
+
+    uow.dict_cursor.execute("""
+    select preferences from charts_preferences where user_id = %(user_id)s
+    """, {
+        "user_id": u.id
+    })
+
+    preferences = uow.dict_cursor.fetchone()
+
+    return Response(
+        message="Chart Preferences Returned",
+        status_code=200,
+        data=preferences
     ).__dict__
