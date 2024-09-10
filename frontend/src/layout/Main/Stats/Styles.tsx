@@ -94,3 +94,39 @@ export const dialogStyles: SxProps<Theme> = {
     padding: '20px',
     borderRadius: '10px',
 }
+
+export const editButtonStyle: SxProps<Theme> = {
+    backgroundColor: '#6B9AB6', // Match the blue tones used on the page
+    color: 'white',             // White text to contrast the button color
+    fontSize: '14px',           // Slightly smaller font to match the clean design
+    borderRadius: '8px',        // Softer rounded edges to match the theme
+    cursor: 'pointer',
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+    '&:hover': {
+        backgroundColor: '#5A8AAD', // Slightly darker blue on hover
+    }
+}
+
+export const saveButtonStyle: SxProps<Theme> = {
+    backgroundColor: '#6B9AB6', // Match the blue tones used on the page
+    color: 'white',             // White text to contrast the button color
+    fontSize: '14px',           // Slightly smaller font to match the clean design
+    borderRadius: '8px',        // Softer rounded edges to match the theme
+    cursor: 'pointer',
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Light shadow for depth
+    '&:hover': {
+        backgroundColor: '#5A8AAD', // Slightly darker blue on hover
+    }
+}
+
+export const cancelButtonStyle: SxProps<Theme> = {
+    backgroundColor: '#F44336',  // Red to indicate a cancel action
+    color: 'white',
+    fontSize: '14px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+    '&:hover': {
+        backgroundColor: '#D32F2F', // Darker red on hover
+    }
+}

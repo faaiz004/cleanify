@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Box from "@mui/material/Box";
-import { dataHeader, editTextStyle, headingStyle, root, row } from "./Styles";
+import { cancelButtonStyle, dataHeader, editButtonStyle,  headingStyle, root, row, saveButtonStyle } from "./Styles";
 import LineChart from "./Line/Index";
 import BarChart from "./Bar/Index";
 import PieChart from "./Pie/Index";
@@ -16,7 +16,6 @@ import {
   ListItem,
   ListItemIcon,
 } from "@mui/material";
-import Switch from "@mui/material/Switch";
 import {
   DndContext,
   closestCorners,
@@ -33,8 +32,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import React from "react";
-import Tooltip from "@mui/material/Tooltip";
-import InfoIcon from "@mui/icons-material/Info";
 import AddCardOverlay from "../../../components/AddCardOverlay/Index";
 import { ContainerType } from "../../../pages/Main/constants";
 import {  fleetUsageData } from "./constants";
@@ -209,18 +206,21 @@ const Stats: React.FC<StatsProps> = ({
     }
   };
 
-  const handleEditToggle = () => {
+  const handleEditOn = () => {
+    tempChartStore.current = [...charts];
+    setEditMode(true);
+  }
 
-    if(!editMode){
-      tempChartStore.current = [...charts];
-    }
-    else{
-      setCharts(tempChartStore.current);
-    }
+  const handleEditSave = () => {
+    tempChartStore.current = []
+    setEditMode(false);
+  }
 
-    setEditMode(!editMode);
-    
-  };
+  const handleEditCancel = () => {
+    setCharts(tempChartStore.current);
+    tempChartStore.current = []
+    setEditMode(false);
+  }
 
   const handleDelete = useCallback(
     (id: string) => {
@@ -335,15 +335,19 @@ const Stats: React.FC<StatsProps> = ({
   }, [fleetStatusData]); // This useEffect will run only when containers change
 
   return (
-    <Box sx={root}>
+    <Box sx={root}>   
       <Box sx={dataHeader}>
         <Typography sx={headingStyle}>Stats</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Typography sx={editTextStyle}>Edit</Typography>
-          <Switch checked={editMode} onChange={handleEditToggle} />
-          <Tooltip title="Toggle the edit mode to rearrange charts from the dashboard. Inorder to delete a chart press the delete button.">
-            <InfoIcon sx={{ color: "gray" }} />
-          </Tooltip>
+          {!editMode && <Button sx = {editButtonStyle} onClick={handleEditOn}>Edit</Button>}
+          {
+            editMode && (
+              <>
+                <Button sx = {saveButtonStyle} onClick={handleEditSave}>Save</Button>
+                <Button sx = {cancelButtonStyle} onClick={handleEditCancel} >Cancel</Button>
+              </>
+            )
+          }
         </Box>
       </Box>
 
