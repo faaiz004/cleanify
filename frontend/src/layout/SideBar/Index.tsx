@@ -35,6 +35,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@mui/material';
 import { getLocation } from '../../services/Location/Index';
 import { Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 export interface LocationObj {
@@ -96,6 +97,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function SideBar() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
 
   const [open, setOpen] = React.useState(false);
@@ -114,6 +116,9 @@ export default function SideBar() {
     if(text == "Logout"){
       dispatch(clearUser());
     } 
+    else if (text == "Bins"){
+      navigate('/containeroverview');
+    }
   }
 
 
@@ -208,7 +213,7 @@ export default function SideBar() {
             { text: 'Analytics', icon: <BarChartIcon /> },
           ].map((item, index) => (
             <ListItem key={index} disablePadding sx={{ marginLeft: '5px' }}>
-              <ListItemButton>
+              <ListItemButton onClick={() => handleClick(item.text)} >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>

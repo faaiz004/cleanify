@@ -1,0 +1,54 @@
+/* Compact Header Styles */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+  }
+  
+  .search-container {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .add-container-button {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* Table Adjustments */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+  }
+  
+  .table tbody tr.even-row {
+    background-color: #f2f2f2; /* Alternating colors */
+  }
+  
+  .table tbody tr:hover {
+    background-color: #e9e9e9;
+  }
+  
+  /* Status Dot Styles */
+  .status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  
+  .working {
+    background-color: green;
+  }
+  
+  .inactive {
+    background-color: red;
+  }
+  
