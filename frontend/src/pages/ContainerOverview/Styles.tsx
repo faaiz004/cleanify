@@ -63,6 +63,9 @@ export const Image = styled('img')(({ theme }) => ({
 }));
 
 // Styled feedback button
+
+
+// Styled feedback button with z-index adjustment for better visibility
 export const FeedbackButton = styled(IconButton)(({ theme }) => ({
   position: 'fixed',
   bottom: '1rem',
@@ -72,6 +75,7 @@ export const FeedbackButton = styled(IconButton)(({ theme }) => ({
   borderRadius: '50%',
   padding: '10px',
   textAlign: 'center',
+  zIndex: 1300, // Ensure button is on top of other content
   '&:hover': {
     backgroundColor: theme.palette.error.dark,
   },
