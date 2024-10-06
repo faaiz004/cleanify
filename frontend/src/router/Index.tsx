@@ -19,6 +19,7 @@ const Signin = lazy(() => import("../pages/Signin/Index"));
 const AboutUs = lazy(() => import("../pages/AboutUs/Index"));
 const MainBody = lazy(() => import("../pages/Main/Index"));
 const ContainerOverview = lazy(() => import("../pages/ContainerOverview/Index"));
+const AddContainer = lazy(() => import("../pages/AddContainer/Index"));
 
 const NavbarLayout: React.FC = () => {
   return (
@@ -91,6 +92,14 @@ export default function RouterComponent() {
             element={
               <Suspense fallback={<div>...Loading</div>}>
                 <ContainerOverview />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/addcontainer"
+            element={
+              <Suspense fallback={<div>...Loading</div>}>
+                <AddContainer />
               </Suspense>
             }
           />

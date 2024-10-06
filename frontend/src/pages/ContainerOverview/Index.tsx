@@ -24,6 +24,7 @@ import {
 } from './Styles';
 import { Bar, Line } from 'react-chartjs-2'; // Import Chart and Line components
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement } from 'chart.js'; // Chart.js required imports
+import { useNavigate } from 'react-router-dom';
 
 // Register Chart.js components
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement);
@@ -213,6 +214,7 @@ const ContainerOverview: React.FC = () => {
   const [regionFilter, setRegionFilter] = useState("All regions");
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const navigate = useNavigate();
   const rowsPerPage = 10;
 
   // Toggle feedback drawer
@@ -264,7 +266,7 @@ const ContainerOverview: React.FC = () => {
           <Title>Container Overview</Title>
         </Grid>
         <Grid item>
-          <AddButton variant="contained">+ Add containers</AddButton>
+          <AddButton variant="contained" onClick={() => navigate('/addcontainer')}>+ Add containers</AddButton>
         </Grid>
       </Grid>
 
@@ -375,7 +377,7 @@ const ContainerOverview: React.FC = () => {
 
       {/* Feedback Button that toggles the Drawer */}
       <FeedbackButton onClick={toggleDrawer(true)}>
-        <Typography variant="caption">Feedback</Typography>
+        <Typography variant="caption">Overview</Typography>
       </FeedbackButton>
 
       {/* Drawer that slides in from the right */}
