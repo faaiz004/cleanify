@@ -6,7 +6,6 @@ import L from 'leaflet';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import IconButton from '@mui/material/IconButton';
-import Input from '@mui/material/Input';
 
 // Updated theme to match the new design
 const theme = createTheme({
