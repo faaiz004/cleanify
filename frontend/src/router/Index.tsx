@@ -96,7 +96,7 @@ export default function RouterComponent() {
             }
           />
           <Route
-            path="/addcontainer"
+            path="/editcontainer/:id"
             element={
               <Suspense fallback={<div>...Loading</div>}>
                 <AddContainer />

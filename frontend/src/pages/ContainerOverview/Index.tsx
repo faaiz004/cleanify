@@ -1,44 +1,58 @@
+// src/components/ContainerOverview.tsx
 import React, { useState } from 'react';
 import {
+  Box,
+  Button,
+  Container,
+  Drawer,
   Grid,
-  Select,
   MenuItem,
-  TextField,
+  Select,
+  Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
-  Drawer,
-  Box,
-  Button
+  Fab,
+  Paper,
+  Tooltip,
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import { Bar, Line } from 'react-chartjs-2';
 import {
-  StyledContainer,
-  Title,
-  AddButton,
-  Filters,
-  StyledTable,
-  Image,
-  FeedbackButton
-} from './Styles';
-import { Bar, Line } from 'react-chartjs-2'; // Import Chart and Line components
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement } from 'chart.js'; // Chart.js required imports
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip as ChartTooltip,
+  Legend,
+  LineElement,
+  PointElement,
+} from 'chart.js';
 import { useNavigate } from 'react-router-dom';
 
-// Register Chart.js components
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, LineElement, PointElement);
-
+ChartJS.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  ChartTooltip,
+  Legend,
+  LineElement,
+  PointElement
+);
 interface ContainerData {
   id: string;
   image: string;
   status: string;
-  address: string;    // Address/Region
-  fillLevel: number;  // Fill Level
-  capacity: number;   // Capacity in liters
+  address: string; // Address/Region
+  fillLevel: number; // Fill Level
+  capacity: number; // Capacity in liters
 }
 
-// Add dummy data for containers
+// Expanded dummy data for containers (30 entries)
 const containerData: ContainerData[] = [
   {
     id: 'C001',
@@ -119,7 +133,7 @@ const containerData: ContainerData[] = [
     address: 'Region A',
     fillLevel: 15,
     capacity: 2400,
-  }, 
+  },
   {
     id: 'C011',
     image: 'https://via.placeholder.com/50',
@@ -199,45 +213,137 @@ const containerData: ContainerData[] = [
     address: 'Region B',
     fillLevel: 88,
     capacity: 1625,
-  }
-  // Add more dummy containers as needed
+  },
+  {
+    id: 'C021',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region C',
+    fillLevel: 77,
+    capacity: 1850,
+  },
+  {
+    id: 'C022',
+    image: 'https://via.placeholder.com/50',
+    status: 'Inactive',
+    address: 'Region A',
+    fillLevel: 22,
+    capacity: 2550,
+  },
+  {
+    id: 'C023',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region B',
+    fillLevel: 68,
+    capacity: 1950,
+  },
+  {
+    id: 'C024',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region C',
+    fillLevel: 83,
+    capacity: 1800,
+  },
+  {
+    id: 'C025',
+    image: 'https://via.placeholder.com/50',
+    status: 'Inactive',
+    address: 'Region A',
+    fillLevel: 14,
+    capacity: 2480,
+  },
+  {
+    id: 'C026',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region B',
+    fillLevel: 92,
+    capacity: 2300,
+  },
+  {
+    id: 'C027',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region C',
+    fillLevel: 78,
+    capacity: 1750,
+  },
+  {
+    id: 'C028',
+    image: 'https://via.placeholder.com/50',
+    status: 'Inactive',
+    address: 'Region A',
+    fillLevel: 17,
+    capacity: 2375,
+  },
+  {
+    id: 'C029',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region B',
+    fillLevel: 85,
+    capacity: 1680,
+  },
+  {
+    id: 'C030',
+    image: 'https://via.placeholder.com/50',
+    status: 'Working',
+    address: 'Region C',
+    fillLevel: 73,
+    capacity: 1780,
+  },
 ];
 
 const getStatusIcon = (status: string) => {
-  const color = status === "Working" ? "green" : "red";
-  return <span style={{ color, marginRight: 8 }}>●</span>;
+  const color = status === 'Working' ? 'green' : 'red';
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: 'inline-block',
+        width: 10,
+        height: 10,
+        borderRadius: '50%',
+        backgroundColor: color,
+        marginRight: 1,
+      }}
+    />
+  );
 };
 
 const ContainerOverview: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("All statuses");
-  const [regionFilter, setRegionFilter] = useState("All regions");
-  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState('All statuses');
+  const [regionFilter, setRegionFilter] = useState('All regions');
+  const [searchText, setSearchText] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
   const rowsPerPage = 10;
 
-  // Toggle feedback drawer
+  // Toggle drawer
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
   };
 
   // Filter and paginate containers
   const filteredData = containerData
-    .filter(container =>
-      (statusFilter === "All statuses" || container.status === statusFilter) &&
-      (regionFilter === "All regions" || container.address === regionFilter) &&
-      (container.id.toLowerCase().includes(searchText.toLowerCase()))
+    .filter(
+      (container) =>
+        (statusFilter === 'All statuses' || container.status === statusFilter) &&
+        (regionFilter === 'All regions' || container.address === regionFilter) &&
+        container.id.toLowerCase().includes(searchText.toLowerCase())
     )
     .slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
   // Chart data
   const fillLevelData = {
-    labels: filteredData.map(container => container.id),
+    labels: filteredData.map((container) => container.id),
     datasets: [
       {
         label: 'Fill Level (%)',
-        data: filteredData.map(container => container.fillLevel),
+        data: filteredData.map((container) => container.fillLevel),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -246,11 +352,11 @@ const ContainerOverview: React.FC = () => {
   };
 
   const capacityData = {
-    labels: filteredData.map(container => container.id),
+    labels: filteredData.map((container) => container.id),
     datasets: [
       {
         label: 'Capacity (Liters)',
-        data: filteredData.map(container => container.capacity),
+        data: filteredData.map((container) => container.capacity),
         backgroundColor: 'rgba(153, 102, 255, 0.6)',
         borderColor: 'rgba(153, 102, 255, 1)',
         borderWidth: 1,
@@ -260,54 +366,61 @@ const ContainerOverview: React.FC = () => {
   };
 
   return (
-    <StyledContainer maxWidth="xl">
+    <Container maxWidth="xl" sx={{ paddingY: 4 }}>
+      {/* Header with Title */}
       <Grid container justifyContent="space-between" alignItems="center" spacing={3}>
         <Grid item>
-          <Title>Container Overview</Title>
-        </Grid>
-        <Grid item>
-          <AddButton variant="contained" onClick={() => navigate('/addcontainer')}>+ Add containers</AddButton>
+          <Typography variant="h4" component="h1" color="primary">
+            Container Overview
+          </Typography>
         </Grid>
       </Grid>
 
-      <Filters>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={4}>
+      {/* Filters Section */}
+      <Box sx={{ marginY: 3 }}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
-              label="Search"
+              label="Search by ID"
               variant="outlined"
-              InputProps={{
-                sx: {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderRadius: '50px',
-                  },
-                },
-              }}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+              }}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} md={4}>
             <Select
               fullWidth
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              displayEmpty
               variant="outlined"
-              sx={{ borderRadius: '50px' }}
+              sx={{
+                borderRadius: '50px',
+                height: '56px',
+              }}
             >
               <MenuItem value="All statuses">All statuses</MenuItem>
               <MenuItem value="Working">Working</MenuItem>
               <MenuItem value="Inactive">Inactive</MenuItem>
             </Select>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12} md={4}>
             <Select
               fullWidth
               value={regionFilter}
               onChange={(e) => setRegionFilter(e.target.value)}
+              displayEmpty
               variant="outlined"
-              sx={{ borderRadius: '50px' }}
+              sx={{
+                borderRadius: '50px',
+                height: '56px',
+              }}
             >
               <MenuItem value="All regions">All regions</MenuItem>
               <MenuItem value="Region A">Region A</MenuItem>
@@ -316,91 +429,218 @@ const ContainerOverview: React.FC = () => {
             </Select>
           </Grid>
         </Grid>
-      </Filters>
+      </Box>
 
-      <StyledTable>
-        <TableHead sx={{ height: '60px', backgroundColor: '#f7f7f7' }}>
-          <TableRow>
-            <TableCell>Container ID</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Address/Region</TableCell>
-            <TableCell>Fill Level (%)</TableCell>
-            <TableCell>Capacity (Liters)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {filteredData.map((container, index) => {
-            const rowStyle = index % 2 === 0
-              ? { backgroundColor: '#ffffff' }
-              : { backgroundColor: '#f7f7f7' };
-
-            return (
-              <TableRow key={container.id} style={{ ...rowStyle, height: '60px' }}>
+      {/* Containers Table */}
+      <TableContainer component={Paper} elevation={3} sx={{ borderRadius: 2 }}>
+        <Table>
+          <TableHead sx={{ backgroundColor: '#f0f0f0' }}>
+            <TableRow>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Container ID
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Status
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Address/Region
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Fill Level (%)
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Capacity (Liters)
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Actions
+                </Typography>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredData.map((container, index) => (
+              <TableRow
+                key={container.id}
+                hover
+                sx={{
+                  backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafafa',
+                  transition: 'background-color 0.3s',
+                }}
+              >
                 <TableCell>
-                  <Image src={container.image} alt={container.id} />
-                  {container.id}
+                  <Box display="flex" alignItems="center">
+                    <Box
+                      component="img"
+                      src={container.image}
+                      alt={container.id}
+                      sx={{ width: 50, height: 50, marginRight: 2, borderRadius: '8px' }}
+                    />
+                    <Typography variant="body1" fontWeight="medium">
+                      {container.id}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell>
-                  {getStatusIcon(container.status)}
-                  {container.status}
+                  <Box display="flex" alignItems="center">
+                    {getStatusIcon(container.status)}
+                    <Typography variant="body1">{container.status}</Typography>
+                  </Box>
                 </TableCell>
-                <TableCell>{container.address}</TableCell>
-                <TableCell>{container.fillLevel}%</TableCell>
-                <TableCell>{container.capacity}</TableCell>
+                <TableCell>
+                  <Typography variant="body1">{container.address}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body1">{container.fillLevel}%</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body1">{container.capacity}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Tooltip title="Edit Container">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      startIcon={<EditIcon />}
+                      onClick={() => navigate(`/editcontainer/${container.id}`)}
+                      sx={{
+                        borderRadius: '50px',
+                        textTransform: 'none',
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </StyledTable>
+            ))}
+            {filteredData.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <Typography variant="body1">No containers found.</Typography>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       {/* Pagination Buttons */}
-      <Box mt={2} display="flex" justifyContent="space-between">
+      <Box
+        sx={{
+          marginY: 4,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 2,
+        }}
+      >
         <Button
+          variant="outlined"
           onClick={() => {
             setCurrentPage(currentPage - 1);
             window.scrollTo(0, 0);
           }}
           disabled={currentPage === 0}
+          sx={{
+            borderRadius: '50px',
+            paddingX: 4,
+          }}
         >
           Previous
         </Button>
         <Button
+          variant="outlined"
           onClick={() => {
             setCurrentPage(currentPage + 1);
             window.scrollTo(0, 0);
           }}
           disabled={(currentPage + 1) * rowsPerPage >= containerData.length}
+          sx={{
+            borderRadius: '50px',
+            paddingX: 4,
+          }}
         >
           Next
         </Button>
       </Box>
 
-      {/* Feedback Button that toggles the Drawer */}
-      <FeedbackButton onClick={toggleDrawer(true)}>
-        <Typography variant="caption">Overview</Typography>
-      </FeedbackButton>
+      {/* Floating Action Button for Analytics */}
+      <Fab
+        color="secondary"
+        aria-label="analytics"
+        sx={{ position: 'fixed', bottom: 20, right: 20 }}
+        onClick={toggleDrawer(true)}
+      >
+        <Typography variant="caption" color="#fff">
+          Overview
+        </Typography>
+      </Fab>
 
-      {/* Drawer that slides in from the right */}
+      {/* Drawer with Analytics Charts */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box sx={{ width: '50vw', padding: '2rem' }}>
-          <Typography variant="h6" gutterBottom>
+        <Box
+          sx={{
+            width: { xs: '80vw', sm: '50vw' },
+            padding: 4,
+            backgroundColor: '#f9f9f9',
+            height: '100%',
+            overflowY: 'auto',
+          }}
+        >
+          <Typography variant="h5" gutterBottom color="primary">
             Container Analytics
           </Typography>
-          <Box mb={3}>
-            <Typography variant="body1" gutterBottom>
-              Fill Level of Containers:
+          <Box mb={4}>
+            <Typography variant="h6" gutterBottom>
+              Fill Level of Containers
             </Typography>
-            <Bar data={fillLevelData} />
+            <Bar
+              data={fillLevelData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top' as const,
+                  },
+                },
+              }}
+            />
           </Box>
-          <Box mb={3}>
-            <Typography variant="body1" gutterBottom>
-              Capacity of Containers (Line Chart):
+          <Box mb={4}>
+            <Typography variant="h6" gutterBottom>
+              Capacity of Containers (Line Chart)
             </Typography>
-            <Line data={capacityData} />
+            <Line
+              data={capacityData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top' as const,
+                  },
+                },
+              }}
+            />
+          </Box>
+          <Box textAlign="right">
+            <Button variant="contained" onClick={toggleDrawer(false)}>
+              Close
+            </Button>
           </Box>
         </Box>
       </Drawer>
-    </StyledContainer>
+    </Container>
   );
 };
 
